@@ -1,0 +1,20 @@
+[gd_scene load_steps=4 format=3 uid="uid://cfmhilne5bdii"]
+
+[ext_resource type="Script" uid="uid://bkhvspifp1jup" path="res://scenes/deck.gd" id="1_6rnap"]
+[ext_resource type="Texture2D" uid="uid://djxanpqa1yd1h" path="res://assets/deck_image.png" id="1_sdhao"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_6rnap"]
+size = Vector2(152, 211)
+
+[node name="Deck" type="Node2D"]
+script = ExtResource("1_6rnap")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+z_index = -1
+texture = ExtResource("1_sdhao")
+
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+position = Vector2(0, -0.5)
+shape = SubResource("RectangleShape2D_6rnap")

@@ -1,16 +1,67 @@
-[gd_scene load_steps=4 format=3 uid="uid://btwsd22y2ccdl"]
+[gd_scene load_steps=9 format=3 uid="uid://btwsd22y2ccdl"]
 
 [ext_resource type="Script" uid="uid://ddr3giaew6hcv" path="res://scenes/game.gd" id="1_lbhrr"]
 [ext_resource type="PackedScene" uid="uid://d3km6rhoy317o" path="res://scenes/card_manager.tscn" id="2_lnu2h"]
-[ext_resource type="PackedScene" uid="uid://b53adswmldgaq" path="res://scenes/card.tscn" id="2_yqjtg"]
+[ext_resource type="PackedScene" uid="uid://c0as7xniob5i2" path="res://scenes/schedule.tscn" id="4_lbhrr"]
+[ext_resource type="Script" uid="uid://cqnyfeaffyor" path="res://scenes/game_manager.gd" id="5_iywne"]
+[ext_resource type="PackedScene" uid="uid://bc7bif17iug3h" path="res://scenes/hand.tscn" id="5_p57ef"]
+[ext_resource type="PackedScene" uid="uid://cfmhilne5bdii" path="res://scenes/deck.tscn" id="6_p57ef"]
+[ext_resource type="Script" uid="uid://4s7e0f7u8n2" path="res://scenes/input_manager.gd" id="7_u5sy4"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_iywne"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
+border_width_left = 10
+border_width_top = 10
+border_width_right = 10
+border_width_bottom = 10
+border_color = Color(0, 0, 0, 1)
 
 [node name="Game" type="Node2D"]
 script = ExtResource("1_lbhrr")
 
+[node name="GameManager" type="Node2D" parent="."]
+script = ExtResource("5_iywne")
+
+[node name="ControlParent" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 1920.0
+offset_bottom = 1080.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+mouse_filter = 1
+
+[node name="Schedule" parent="ControlParent" instance=ExtResource("4_lbhrr")]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.0
+grow_vertical = 1
+mouse_filter = 1
+
+[node name="DropZone" type="Panel" parent="ControlParent"]
+layout_mode = 0
+offset_left = 120.0
+offset_top = 400.0
+offset_right = 1800.0
+offset_bottom = 730.0
+mouse_filter = 1
+theme_override_styles/panel = SubResource("StyleBoxFlat_iywne")
+
 [node name="CardManager" parent="." instance=ExtResource("2_lnu2h")]
 
-[node name="Card" parent="CardManager" instance=ExtResource("2_yqjtg")]
-position = Vector2(270, 324)
+[node name="Hand" parent="." instance=ExtResource("5_p57ef")]
 
-[node name="Card2" parent="CardManager" instance=ExtResource("2_yqjtg")]
-position = Vector2(897, 352)
+[node name="Deck" parent="." instance=ExtResource("6_p57ef")]
+position = Vector2(147.5, 925)
+
+[node name="InputManager" type="Node2D" parent="."]
+script = ExtResource("7_u5sy4")
+
+[connection signal="mouse_entered" from="ControlParent/DropZone" to="CardManager" method="_on_drop_zone_mouse_entered"]
+[connection signal="mouse_exited" from="ControlParent/DropZone" to="CardManager" method="_on_drop_zone_mouse_exited"]
