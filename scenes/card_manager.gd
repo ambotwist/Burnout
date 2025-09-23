@@ -114,7 +114,7 @@ func highlight_card(card: Card):
 		
 	# Set as new highlighted card
 	highlighted_card = card
-	highlighted_card.z_index = 2
+	highlighted_card.z_index = 100
 	
 	# Grow card
 	highlighted_card.scale = Vector2(highlight_scale, highlight_scale)
@@ -128,9 +128,8 @@ func highlight_card(card: Card):
 # De-highlights given card
 func dehighlight_card(card: Card):
 	if highlighted_card == card:
-		card.z_index = 1
 		card.scale = Vector2(GameConstants.CARD_SCALE, GameConstants.CARD_SCALE)
-		hand.snap_card_to_hand(card)
+		hand.snap_card_to_hand(card)  # This will restore the proper z-index
 		highlighted_card = null
 
 		# Check if we hovered straight from one card to another
