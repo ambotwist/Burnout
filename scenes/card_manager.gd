@@ -62,13 +62,28 @@ func release_card():
 			hand.remove_card_from_hand(held_card)
 			held_card.queue_free()
 		else:
-			hand.snap_card_to_hand(held_card)
-			# Wait for snap animation to complete, then check if cursor is still over the card
-			get_tree().create_timer(0.12).timeout.connect(func():
-				var card_under_cursor = input_manager.raycast()
-				if released_card == highlighted_card and card_under_cursor != released_card:
-					dehighlight_card(released_card)
-			)
+			# Check immediately if cursor is over the released card
+			var card_under_cursor = input_manager.raycast()
+			if released_card == highlighted_card and card_under_cursor == released_card:
+				# Card should stay highlighted, animate directly to highlighted position
+				var card_pos = hand.calculate_card_position(released_card.hand_position)
+				hand.animate_card_to_position_and_rotation(released_card,
+					Vector2(card_pos.x, card_pos.y - 30), 0)
+				# Still need delayed check in case cursor moves away after release
+				get_tree().create_timer(0.12).timeout.connect(func():
+					var delayed_card_under_cursor = input_manager.raycast()
+					if released_card == highlighted_card and delayed_card_under_cursor != released_card:
+						dehighlight_card(released_card)
+				)
+			else:
+				# Normal snap back to hand
+				hand.snap_card_to_hand(held_card)
+				# Wait for snap animation to complete, then check if cursor moved over the card
+				get_tree().create_timer(0.12).timeout.connect(func():
+					var delayed_card_under_cursor = input_manager.raycast()
+					if released_card == highlighted_card and delayed_card_under_cursor != released_card:
+						dehighlight_card(released_card)
+				)
 		held_card = null
 
 
