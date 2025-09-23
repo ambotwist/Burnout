@@ -56,12 +56,19 @@ func hold_card(card):
 
 func release_card():
 	if held_card:
+		var released_card = held_card
 		if in_drop_zone:
 			card_used.emit(held_card)
 			hand.remove_card_from_hand(held_card)
 			held_card.queue_free()
 		else:
 			hand.snap_card_to_hand(held_card)
+			# Wait for snap animation to complete, then check if cursor is still over the card
+			get_tree().create_timer(0.12).timeout.connect(func():
+				var card_under_cursor = input_manager.raycast()
+				if released_card == highlighted_card and card_under_cursor != released_card:
+					dehighlight_card(released_card)
+			)
 		held_card = null
 
 
@@ -84,8 +91,8 @@ func on_mouse_entered_card(card):
 
 # Defines behavior when the cursor exits the card area
 func on_mouse_exited_card(card):
-	# Dehighlight card if it was highlighted
-	if card == highlighted_card:
+	# Dehighlight card if it was highlighted AND not currently being held
+	if card == highlighted_card and card != held_card:
 		dehighlight_card(card)
 
 
@@ -104,7 +111,7 @@ func _on_drop_zone_mouse_exited() -> void:
 	in_drop_zone = false
 
 
-### ANIMATIONS
+### --- ANIMATIONS --- ###
 
 # Highlights given card
 func highlight_card(card: Card):
