@@ -16,9 +16,9 @@ func add_card_to_hand(card):
 
 # Snaps back given card back to hand
 func snap_card_to_hand(card):
-	animate_card_to_position(
-		card,
-		Vector2(calculate_card_x_position(card.hand_position), GameConstants.HAND_Y_POSITION))
+	var card_pos = calculate_card_position(card.hand_position)
+	var card_rotation = calculate_card_rotation(card.hand_position)
+	animate_card_to_position_and_rotation(card, card_pos, card_rotation)
 
 
 func remove_card_from_hand(card):
@@ -29,18 +29,48 @@ func remove_card_from_hand(card):
 
 func update_hand_positions():
 	for i in hand.size():
-		var new_position = Vector2(calculate_card_x_position(i), GameConstants.HAND_Y_POSITION)
+		var card_pos = calculate_card_position(i)
+		var card_rotation = calculate_card_rotation(i)
 		var card = hand[i]
 		card.hand_position = i
-		animate_card_to_position(card, new_position)
+		animate_card_to_position_and_rotation(card, card_pos, card_rotation)
 
 
-func calculate_card_x_position(index):
-	var x_offset = (hand.size() - 1) * GameConstants.CARD_SCALED_WIDTH
-	@warning_ignore("integer_division")
-	var x_position =  center_screen_x + index * GameConstants.CARD_SCALED_WIDTH - x_offset / 2
-	return x_position
+func calculate_card_position(index):
+	var card_count = hand.size()
+	if card_count == 1:
+		return Vector2(center_screen_x, GameConstants.HAND_Y_POSITION)
 
+	var card_overlap = GameConstants.CARD_SCALED_WIDTH * 0.7
+	var total_width = (card_count - 1) * card_overlap
+	var start_x = center_screen_x - total_width / 2
+	var x_position = start_x + index * card_overlap
+
+	# Create upward curve using a parabola
+	var curve_height = 30
+	var normalized_pos = (index - (card_count - 1) / 2.0) / max(1, (card_count - 1) / 2.0)
+	var y_offset = -curve_height * (1 - normalized_pos * normalized_pos)
+	var y_position = GameConstants.HAND_Y_POSITION + y_offset
+
+	return Vector2(x_position, y_position)
+
+func calculate_card_rotation(index):
+	var card_count = hand.size()
+	if card_count == 1:
+		return 0
+
+	var max_rotation = deg_to_rad(7) 
+	var normalized_pos = (index - (card_count - 1) / 2.0) / max(1, (card_count - 1) / 2.0)
+	return normalized_pos * max_rotation
+
+
+func animate_card_to_position_and_rotation(card, card_position, card_rotation):
+	var tween = get_tree().create_tween()
+	tween.parallel().tween_property(card, "position", card_position, 0.1)
+	tween.parallel().tween_property(card, "rotation", card_rotation, 0.1)
+	# When the animation finishes, set the card as interactable
+	tween.finished.connect(func():
+		card.collision_shape.disabled = false)
 
 func animate_card_to_position(card, card_position):
 	var tween = get_tree().create_tween()

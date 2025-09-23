@@ -12,9 +12,10 @@ var screen_size
 
 # Class references
 var hand: Hand
+var input_manager: InputManager
 
 # Card logic variables
-var held_card
+var held_card: Card = null
 var highlighted_card: Card = null
 var in_drop_zone = false
 
@@ -30,6 +31,7 @@ func _ready() -> void:
 	screen_size = get_viewport_rect().size
 	highlight_scale = GameConstants.CARD_SCALE + 0.3
 	hand = $"../Hand"
+	input_manager = $"../InputManager"
 
 
 # Connects signals emitted from the cards
@@ -116,12 +118,11 @@ func highlight_card(card: Card):
 	
 	# Grow card
 	highlighted_card.scale = Vector2(highlight_scale, highlight_scale)
-	
-	# Move up card
-	hand.animate_card_to_position(highlighted_card, 
-		Vector2(
-			hand.calculate_card_x_position(highlighted_card.hand_position),
-			GameConstants.HAND_Y_POSITION - 30))
+
+	# Straighten and move up card
+	var card_pos = hand.calculate_card_position(highlighted_card.hand_position)
+	hand.animate_card_to_position_and_rotation(highlighted_card,
+		Vector2(card_pos.x, card_pos.y - 30), 0)
 
 
 # De-highlights given card
@@ -131,7 +132,8 @@ func dehighlight_card(card: Card):
 		card.scale = Vector2(GameConstants.CARD_SCALE, GameConstants.CARD_SCALE)
 		hand.snap_card_to_hand(card)
 		highlighted_card = null
-	## Check if we hovered straight from one card to another
-	#var new_card = raycast()
-	#if new_card is Card and new_card != card:
-		#highlight_card(new_card)
+
+		# Check if we hovered straight from one card to another
+		var new_card = input_manager.raycast()
+		if new_card is Card and new_card != card:
+			highlight_card(new_card)
