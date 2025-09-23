@@ -20,7 +20,7 @@ func snap_card_to_hand(card):
 	var card_pos = calculate_card_position(card.hand_position)
 	var card_rotation = calculate_card_rotation(card.hand_position)
 	# Restore proper z-index based on hand position
-	card.z_index = hand.size() - card.hand_position
+	card.z_index = card.hand_position + 1
 	animate_card_to_position_and_rotation(card, card_pos, card_rotation)
 
 
@@ -38,8 +38,8 @@ func update_hand_positions():
 		var card_rotation = calculate_card_rotation(i)
 		var card = hand[i]
 		card.hand_position = i
-		# Set z-index: leftmost card (index 0) has highest z-index
-		card.z_index = hand.size() - i
+		# Set z-index: rightmost card (highest index) has highest z-index
+		card.z_index = i + 1
 		animate_card_to_position_and_rotation(card, card_pos, card_rotation)
 
 
