@@ -1,0 +1,14 @@
+[gd_scene load_steps=4 format=3 uid="uid://c6s14ptpfykyr"]
+
+[ext_resource type="Texture2D" uid="uid://bh4r2orl2ut37" path="res://assets/time_slots.png" id="1_1rsrt"]
+[ext_resource type="Script" uid="uid://fhob6823fjs1" path="res://scenes/time_slot.gd" id="1_jmumw"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jmumw"]
+atlas = ExtResource("1_1rsrt")
+
+[node name="TimeSlot" type="Node2D"]
+script = ExtResource("1_jmumw")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+z_index = -1
+texture = SubResource("AtlasTexture_jmumw")

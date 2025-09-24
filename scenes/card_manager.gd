@@ -13,6 +13,7 @@ var screen_size
 # Class references
 var hand: Hand
 var input_manager: InputManager
+var drop_zone: Panel
 
 # Card logic variables
 var held_card: Card = null
@@ -32,6 +33,7 @@ func _ready() -> void:
 	highlight_scale = GameConstants.CARD_SCALE + 0.3
 	hand = $"../Hand"
 	input_manager = $"../InputManager"
+	drop_zone = $"../ControlParent/DropZone"
 
 
 # Connects signals emitted from the cards
@@ -52,6 +54,7 @@ func _process(delta: float) -> void:
 
 func hold_card(card):
 	held_card = card
+	fade_in_drop_zone()
 
 
 func release_card():
@@ -85,6 +88,7 @@ func release_card():
 						dehighlight_card(released_card)
 				)
 		held_card = null
+		fade_out_drop_zone()
 
 
 # --- CARD FUNCTIONS ---
@@ -158,3 +162,15 @@ func dehighlight_card(card: Card):
 		var new_card = input_manager.raycast()
 		if new_card is Card and new_card != card:
 			highlight_card(new_card)
+
+
+# Fades in the drop zone when holding a card
+func fade_in_drop_zone():
+	var tween = create_tween()
+	tween.tween_property(drop_zone, "modulate:a", 1.0, 0.3)
+
+
+# Fades out the drop zone when releasing a card
+func fade_out_drop_zone():
+	var tween = create_tween()
+	tween.tween_property(drop_zone, "modulate:a", 0.0, 0.3)

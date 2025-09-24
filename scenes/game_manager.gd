@@ -53,6 +53,12 @@ func deal_cards():
 
 func on_card_used(card):
 	hand.remove_card_from_hand(card)
-	schedule.fill_slot(current_slot)
+
+	# Random slot size (1-4) and color
+	var random_size = randi_range(1, 4)
+	var colors = ["red", "yellow", "blue"]
+	var random_color = colors[randi() % colors.size()]
+
+	schedule.fill_slot(random_color, random_size)
 	current_slot += 1
 	deck.draw_card()
