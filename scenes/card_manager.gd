@@ -15,6 +15,8 @@ var hand: Hand
 var input_manager: InputManager
 var drop_zone: Panel
 
+var card_db
+
 # Card logic variables
 var held_card: Card = null
 var highlighted_card: Card = null
@@ -29,11 +31,12 @@ var in_drop_zone = false
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	screen_size = get_viewport_rect().size
-	highlight_scale = GameConstants.CARD_SCALE + 0.3
+	card_db = preload("res://scripts/card_database.gd")
 	hand = $"../Hand"
 	input_manager = $"../InputManager"
 	drop_zone = $"../ControlParent/DropZone"
+	screen_size = get_viewport_rect().size
+	highlight_scale = GameConstants.CARD_SCRIPT_SCALE + 0.3
 
 
 # Connects signals emitted from the cards
@@ -42,7 +45,7 @@ func connect_card_signals(card):
 	card.mouse_exited_card.connect(on_mouse_exited_card)
 
 
-### --- PROCESSING --- ###
+### --- CARD ACTIONS --- ###
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 @warning_ignore("unused_parameter")
@@ -52,18 +55,24 @@ func _process(delta: float) -> void:
 		drag_card(held_card)
 
 
+# Called when card starts being held
 func hold_card(card):
 	held_card = card
 	fade_in_drop_zone()
 
-
+# Called when currently held card is released
 func release_card():
 	if held_card:
 		var released_card = held_card
 		if in_drop_zone:
+			# Card is being used - emit signal but don't disable yet
+			# The GameManager will handle whether the card can actually be played
 			card_used.emit(held_card)
-			hand.remove_card_from_hand(held_card)
-			held_card.queue_free()
+			held_card = null
+			fade_out_drop_zone()
+			# Don't clear highlighted_card here - let it be handled naturally
+			# when the card is either played or returned to hand
+			return
 		else:
 			# Check immediately if cursor is over the released card
 			var card_under_cursor = input_manager.raycast()
@@ -74,24 +83,30 @@ func release_card():
 					Vector2(card_pos.x, card_pos.y - 30), 0)
 				# Still need delayed check in case cursor moves away after release
 				get_tree().create_timer(0.12).timeout.connect(func():
-					var delayed_card_under_cursor = input_manager.raycast()
-					if released_card == highlighted_card and delayed_card_under_cursor != released_card:
-						dehighlight_card(released_card)
+					# Check if card still exists before accessing it
+					if is_instance_valid(released_card):
+						var delayed_card_under_cursor = input_manager.raycast()
+						if released_card == highlighted_card and delayed_card_under_cursor != released_card:
+							dehighlight_card(released_card)
 				)
 			else:
 				# Normal snap back to hand
 				hand.snap_card_to_hand(held_card)
 				# Wait for snap animation to complete, then check if cursor moved over the card
 				get_tree().create_timer(0.12).timeout.connect(func():
-					var delayed_card_under_cursor = input_manager.raycast()
-					if released_card == highlighted_card and delayed_card_under_cursor != released_card:
-						dehighlight_card(released_card)
+					# Check if card still exists before accessing it
+					if is_instance_valid(released_card):
+						var delayed_card_under_cursor = input_manager.raycast()
+						if released_card == highlighted_card and delayed_card_under_cursor != released_card:
+							dehighlight_card(released_card)
 				)
+
+		# Clean up for cards returned to hand
 		held_card = null
 		fade_out_drop_zone()
 
 
-# --- CARD FUNCTIONS ---
+# --- CARD GESTURES ---
 
 # Drags given card with the mouse cursor
 func drag_card(card):
@@ -154,7 +169,7 @@ func highlight_card(card: Card):
 # De-highlights given card
 func dehighlight_card(card: Card):
 	if highlighted_card == card:
-		card.scale = Vector2(GameConstants.CARD_SCALE, GameConstants.CARD_SCALE)
+		card.scale = Vector2(GameConstants.CARD_SCRIPT_SCALE, GameConstants.CARD_SCRIPT_SCALE)
 		hand.snap_card_to_hand(card)  # This will restore the proper z-index
 		highlighted_card = null
 
@@ -174,3 +189,15 @@ func fade_in_drop_zone():
 func fade_out_drop_zone():
 	var tween = create_tween()
 	tween.tween_property(drop_zone, "modulate:a", 0.0, 0.3)
+
+
+# Animates the card to the given position and rotation
+func animate_card_to_position_and_rotation(card, card_position, card_rotation):
+	var tween = get_tree().create_tween()
+	tween.parallel().tween_property(card, "position", card_position, 0.1)
+	tween.parallel().tween_property(card, "rotation", card_rotation, 0.1)
+	# When the animation finishes, set the card as interactable
+	tween.finished.connect(func():
+		# Check if card still exists (hasn't been freed)
+		if is_instance_valid(card) and card.collision_shape:
+			card.collision_shape.disabled = false)

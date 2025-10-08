@@ -82,4 +82,6 @@ func animate_card_to_position_and_rotation(card, card_position, card_rotation):
 	tween.parallel().tween_property(card, "rotation", card_rotation, 0.1)
 	# When the animation finishes, set the card as interactable
 	tween.finished.connect(func():
-		card.collision_shape.disabled = false)
+		# Check if card still exists (hasn't been freed)
+		if is_instance_valid(card) and card.collision_shape:
+			card.collision_shape.disabled = false)

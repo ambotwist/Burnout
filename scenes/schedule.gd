@@ -75,3 +75,17 @@ func fill_slot(slot_color, slot_size):
 
 	# Update current_time
 	current_time += slot_size * 0.5
+
+
+func get_slot_position(slot_size) -> Vector2:
+	# Calculate and return the global position where a card should go
+	var day_length = end_of_day - start_of_day
+	var grid_width = size.x / day_length
+
+	var time_unit_size = (grid_width / 2) * slot_size
+	var time_offset = current_time - start_of_day
+	var x_position = time_offset * grid_width
+	var y_position = horizontal_divider_height + 40
+
+	# Return global position (convert local to global)
+	return global_position + Vector2(x_position + time_unit_size / 2, y_position)

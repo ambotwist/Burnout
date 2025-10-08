@@ -11,12 +11,15 @@ config_version=5
 [application]
 
 config/name="Burnout"
-run/main_scene="uid://btwsd22y2ccdl"
+run/main_scene="uid://2eekrwedhbpy"
 config/features=PackedStringArray("4.5", "Mobile")
 
 [autoload]
 
 GameConstants="*res://game_constants.gd"
+CardDatabase="*res://scripts/card_database.gd"
+EffectDatabase="*res://scripts/effect_database.gd"
+DeckManager="*res://scripts/deck_manager.gd"
 
 [display]
 

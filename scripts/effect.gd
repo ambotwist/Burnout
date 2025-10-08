@@ -1,0 +1,20 @@
+class_name Effect
+extends Resource
+
+var effect_type: Effect_Type
+var prerequisite: Callable = func() -> bool: return true
+var target = null
+
+enum Effect_Type {
+    EMPTY_EFFECT,
+    HOLD_EFFECT,
+    CARD_MODIFIER,
+    CARD_CREATION,
+    CARD_ARCHIVATION
+}
+
+func can_play() -> bool:
+    return prerequisite.call()
+
+func apply():
+    push_error("Effect.apply() must be overriden in subclass.")

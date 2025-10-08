@@ -6,11 +6,12 @@ extends Node
 const COLLISION_MASK_CARD = 1
 
 # Card Dimensions
-const CARD_WIDTH = 150
-const CARD_HEIGHT = 210
-const CARD_SCALE = 1.3
-const CARD_SCALED_WIDTH = CARD_WIDTH * CARD_SCALE
-const CARD_SCALED_HEIGHT = CARD_HEIGHT * CARD_SCALE
+const CARD_WIDTH = 110
+const CARD_HEIGHT = 170
+const CARD_EDITOR_SCALE = 2.0
+const CARD_SCRIPT_SCALE = 1.0
+const CARD_SCALED_WIDTH = CARD_WIDTH * CARD_EDITOR_SCALE
+const CARD_SCALED_HEIGHT = CARD_HEIGHT * CARD_EDITOR_SCALE
 
 # Hand Properties
 @warning_ignore("integer_division")
