@@ -51,11 +51,6 @@ func _draw():
 		
 
 func fill_slot(slot_color, slot_size):
-	# Don't fill any slot if duration is 0
-	if slot_size <= 0:
-		print("Skipping schedule fill for duration 0 card")
-		return
-
 	var day_length = end_of_day - start_of_day
 	var grid_width = size.x / day_length
 

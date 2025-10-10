@@ -168,24 +168,14 @@ func play_card(card):
 	# Free the card
 	playing_card.queue_free()
 
-	# Fill the schedule with the card (only if duration > 0)
+	# Fill the schedule with the card
 	schedule.fill_slot(slot_color, slot_size)
+	GameState.current_slot += 1
 
-	# Only increment slot and time if the card has duration
-	if slot_size > 0:
-		GameState.current_slot += 1
-		# Update GameState with the card that was just played
-		GameState.on_card_played(playing_card)
-	else:
-		# For duration 0 cards, still update some state but not time
-		GameState.last_played_card = playing_card
-		GameState.last_played_card_type = playing_card.color
-		GameState.cards_played_today.append(playing_card.card_name)
-		GameState.productivity_total += playing_card.productivity
-		print("Played duration 0 card: ", playing_card.card_name, " -> Productivity: +", playing_card.productivity)
+	# Update GameState with the card that was just played
+	GameState.on_card_played(playing_card)
 
-	if slot_size > 0:
-		print("Card played: ", playing_card.card_name, " -> Productivity: +", playing_card.productivity, " (Time: ", GameState.current_time, "/16)")
+	print("Card played: ", playing_card.card_name, " -> Productivity: +", playing_card.productivity, " (Time: ", GameState.current_time, "/16)")
 
 	# End of turn
 	playing_card = null
