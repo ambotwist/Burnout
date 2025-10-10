@@ -268,4 +268,5 @@ func set_starting_deck(deck_data: Array) -> void:
 		deck.deck.append(card_info.card_name)
 		print("  - Added %s to deck" % card_info.card_name)
 
+	deck.deck.shuffle()
 	print("Deck now has %d cards" % deck.deck.size())
