@@ -193,8 +193,9 @@ func process_effect_queue():
 func discard_card(card: Card) -> void:
 	# Remove from hand first if it's there
 	hand.remove_card_from_hand(card)
-
-	card_manager.animate_card_to_position_and_rotation(card, discard_pile.position, 0.0)
+	# Convert discard pile's global position to card's parent local space
+	var target_position = card.get_parent().to_local(discard_pile.global_position)
+	card_manager.animate_card_to_position_and_rotation(card, target_position, 0.0)
 	discard_pile.pile.append(card.get_card_data())
 	await fade_out_card(card)
 	card.queue_free()
@@ -202,7 +203,7 @@ func discard_card(card: Card) -> void:
 
 func add_card_to_game(card: Card, card_position: Vector2) -> void:
 	card.position = card_position
-	hand.add_child(card)
+	card_manager.add_child(card)
 
 
 ### --- UI FUNCTIONS --- ####

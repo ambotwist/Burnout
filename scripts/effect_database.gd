@@ -98,7 +98,7 @@ func classement_prioritaire() -> Array[Effect]:
 # prevision_budgetaire: Insight (pioche 3 cartes et en choisit une), La carte pioche double sa prod de base.
 func prevision_budgetaire() -> Array[Effect]:
 	var draw_effect = InsightEffect.new()
-	draw_effect.deck = game_manager.deck.deck
+	draw_effect.deck = game_manager.deck
 	draw_effect.insight_count = 3
 	return [draw_effect]
 

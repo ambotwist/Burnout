@@ -7,7 +7,8 @@ const CARDS = { #Cost #Duration #Productivity #Effect_Types #Title #Description 
 	"lecture_email": [1, 1, "red", [ EffectType.CARD_MODIFIER], "Read Inbox", "+1 productivity if scheduled in the morning.", ""],
 	"bouclement_comptes": [2, 4, "red", [ EffectType.EMPTY_EFFECT], "Close Account", "Can only be scheduled the afternoon.", "afternoon_only"],
 	"duplicata": [1, 1, "red", [EffectType.CARD_CREATION, EffectType.CARD_ARCHIVATION], "Photocopy", "Creates a copy of a card in hand and ARCHIVES it.", ""],
-	"classement_prioritaire": [2, 2, "red", [EffectType.CARD_ARCHIVATION, EffectType.CARD_MODIFIER], "Archive Task", "ARCHIVES a card in hand. Reduces the duration of the next admin task.", ""]
+	"classement_prioritaire": [2, 2, "red", [EffectType.CARD_ARCHIVATION, EffectType.CARD_MODIFIER], "Archive Task", "ARCHIVES a card in hand. Reduces the duration of the next admin task.", ""],
+	"prevision_budgetaire": [2, 2, "red", [EffectType.DRAW_EFFECT], "Budget Cut", "INSIGHT. The chosen card doubles its productivity.", ""]
 }
 
 # Prerequisite functions - return true if the card can be played

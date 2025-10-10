@@ -152,25 +152,43 @@ func highlight_card(card: Card):
 	# Dehighlight previous card first
 	if highlighted_card and highlighted_card != card:
 		dehighlight_card(highlighted_card)
-		
+
 	# Set as new highlighted card
 	highlighted_card = card
 	highlighted_card.z_index = 100
-	
+
 	# Grow card
 	highlighted_card.scale = Vector2(highlight_scale, highlight_scale)
 
-	# Straighten and move up card
-	var card_pos = hand.calculate_card_position(highlighted_card.hand_position)
-	hand.animate_card_to_position_and_rotation(highlighted_card,
-		Vector2(card_pos.x, card_pos.y - 30), 0)
+	# Animate card based on whether it's in hand or standalone
+	if highlighted_card.hand_position != null:
+		# Hand card: straighten and move up
+		var card_pos = hand.calculate_card_position(highlighted_card.hand_position)
+		hand.animate_card_to_position_and_rotation(highlighted_card,
+			Vector2(card_pos.x, card_pos.y - 30), 0)
+	else:
+		# Standalone card (like insight cards): move up from base position
+		if highlighted_card.base_position == null:
+			highlighted_card.base_position = highlighted_card.position
+		animate_card_to_position_and_rotation(highlighted_card,
+			highlighted_card.base_position + Vector2(0, -30), 0)
 
 
 # De-highlights given card
 func dehighlight_card(card: Card):
 	if highlighted_card == card:
 		card.scale = Vector2(GameConstants.CARD_SCRIPT_SCALE, GameConstants.CARD_SCRIPT_SCALE)
-		hand.snap_card_to_hand(card)  # This will restore the proper z-index
+
+		# Restore card position based on whether it's in hand or standalone
+		if card.hand_position != null:
+			# Hand card: snap back to hand position
+			hand.snap_card_to_hand(card)  # This will restore the proper z-index
+		else:
+			# Standalone card: move back to base position
+			if card.base_position != null:
+				animate_card_to_position_and_rotation(card, card.base_position, 0)
+			card.z_index = 0  # Reset z-index for standalone cards
+
 		highlighted_card = null
 
 		# Check if we hovered straight from one card to another

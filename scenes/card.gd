@@ -7,6 +7,7 @@ signal mouse_exited_card(card)
 
 # References
 var hand_position
+var base_position  # Stores the original position for standalone cards
 
 # Node children
 var collision_shape
