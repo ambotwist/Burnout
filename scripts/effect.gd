@@ -14,7 +14,10 @@ enum Effect_Type {
 }
 
 func can_play() -> bool:
-    return prerequisite.call()
+    var can_be_played: bool = prerequisite.call()
+    if not can_be_played:
+        print("Cannot play effect ", Effect_Type.keys()[effect_type], " on target ", target)
+    return can_be_played
 
 func apply():
     push_error("Effect.apply() must be overriden in subclass.")

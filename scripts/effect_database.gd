@@ -18,10 +18,17 @@ func archive_card(card: Card) -> void:
 	game_manager.remove_card_from_hand(card)
 	game_manager.apply_effect(effect)
 
+func choose_random_hand_card() -> Card:
+	var hand = game_manager.hand.hand
+	var eligible_cards = hand.filter(func(card): return card != game_manager.playing_card)
+	if eligible_cards.size() == 0:
+		return null
+	var random_index = randi() % eligible_cards.size()
+	return eligible_cards[random_index]
 
 # --- RED DECK CARD EFFECTS ---
 
-# +1 de prod si elle jouee apres une carte rouge
+# Formulaire standard: +1 de prod si elle jouee apres une carte rouge
 func formulaire_standard() -> Array[Effect]:
 	var effect = CardModifierEffect.new()
 	effect.target = game_manager.playing_card
@@ -30,49 +37,63 @@ func formulaire_standard() -> Array[Effect]:
 		effect.productivity_modifier += 1
 	return [effect]
 
-# +1 de prod si accomplit le matin
+# Lecture' d'email: +1 de prod si accomplit le matin
 func lecture_email() -> Array[Effect]:
 	var effect = CardModifierEffect.new()
-	if game_manager.current_time < 8:
+	if GameState.current_time < 8:
 		effect.target = game_manager.playing_card
 		effect.productivity_modifier += 1
 	return [effect]
 
-# Jouable l'apres-midi uniquement
+# Bouclement des comptes: Jouable l'apres-midi uniquement
 func bouclement_comptes() -> Array[Effect]:
 	var effect = EmptyEffect.new()
-	effect.prerequisite = func(): return game_manager.current_time >= 8
+	effect.prerequisite = func(): return GameState.current_time >= 8
 	return [effect]
 
 # Duplicata: Cree une copie d'une carte en main, puis l'archive
 func duplicata() -> Array[Effect]:
-	var hand = game_manager.hand.hand
-	var eligible_cards = hand.filter(func(card): return card != game_manager.playing_card)
-
-	if eligible_cards.size() == 0:
+	var source_card = choose_random_hand_card()
+	if source_card == null:
+		print("Duplicata: No card to copy")
 		return []
 
-	var random_index = randi() % eligible_cards.size()
-	var source_card = eligible_cards[random_index]
+	print("Duplicata: Copying card %s with productivity %d" % [source_card.card_name, source_card.productivity])
 
-	# Create the card copy
+	# Create the card copy effect
 	var creation_effect = CardCreationEffect.new()
 	creation_effect.game_manager = game_manager
 	creation_effect.target = source_card
 
-	# Archive it after a delay
+	# Archive effect will be created after the copy is made
 	var archive_effect = CardArchivationEffect.new()
 	archive_effect.game_manager = game_manager
-	archive_effect.target = source_card  # Will be updated to card_copy after creation
 	archive_effect.delay = 1.5
 
-	return [creation_effect, archive_effect]
-	
-		
+	# Apply creation immediately to get the card reference
+	var card_copy = creation_effect.apply()
+	print("Duplicata: Created copy with productivity %d" % card_copy.productivity)
+	archive_effect.target = card_copy
 
+	return [archive_effect]
 
 # classement_prioritaire: archive une carte en main. Reduit d'une case la prochaine carte rouge jouee
+func classement_prioritaire() -> Array[Effect]:
+	var archive_effect = CardArchivationEffect.new()
+	archive_effect.game_manager = game_manager
+	archive_effect.target = choose_random_hand_card()
 
+	# Create modifier effect for the next red card
+	var modifier_effect = CardModifierEffect.new()
+	modifier_effect.prerequisite = func(): return game_manager.playing_card.color == "red"
+	modifier_effect.duration_modifier = -1
+
+	# Add to play_effects_buffer to wait for next red card
+	game_manager.play_effects_buffer.append(modifier_effect)
+	print("Added duration modifier to play_effects_buffer, waiting for next red card")
+
+	# Only return the archive effect for immediate processing
+	return [archive_effect]	
 # prevision_budgetaire: Insight (pioche 3 cartes et en choisit une), La carte pioche double sa prod de base.
 
 # dossier_persistant: +1 de prod a chaque fois que la carte a ete defaussee precedemmjent pendant la run.

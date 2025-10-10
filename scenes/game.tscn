@@ -36,16 +36,16 @@ mouse_filter = 1
 [node name="Schedule" parent="ControlParent" instance=ExtResource("4_lbhrr")]
 layout_mode = 1
 offset_left = 100.0
-offset_top = 200.0
+offset_top = 160.0
 offset_right = -100.0
-offset_bottom = -579.9995
+offset_bottom = -619.99963
 
 [node name="DropZone" type="Panel" parent="ControlParent"]
 modulate = Color(1, 1, 1, 0)
 layout_mode = 0
-offset_left = 120.0
+offset_left = 660.0
 offset_top = 400.0
-offset_right = 1800.0
+offset_right = 1260.0
 offset_bottom = 730.0
 mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_iywne")

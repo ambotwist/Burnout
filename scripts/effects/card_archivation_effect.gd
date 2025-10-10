@@ -11,9 +11,17 @@ func init() -> void:
 
 func apply():
 	if game_manager != null and target != null:
+		print("Archiving card %s with productivity %d" % [target.card_name, target.productivity])
+
 		# Wait if delay is specified
 		if delay > 0:
 			await game_manager.get_tree().create_timer(delay).timeout
 
-		game_manager.productivity += target.productivity
+		print("Adding productivity %d to total (was %d)" % [target.productivity, GameState.productivity_total])
+		GameState.productivity_total += target.productivity
+		print("New total productivity: %d" % GameState.productivity_total)
+
+		# Update UI immediately after changing productivity
+		game_manager.update_ui()
+
 		game_manager.discard_card(target)

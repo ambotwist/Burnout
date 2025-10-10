@@ -13,7 +13,7 @@ func _ready() -> void:
 	
 
 # Draws a card from the deck and instantiates a new card scene
-func draw_card():
+func draw_card(draw_effects_buffer: Array[Effect]) -> void:
 	# Return if the deck is empty
 	if deck.size() <= 0:
 		return
@@ -29,6 +29,13 @@ func draw_card():
 	# Add card scene to the game scene
 	new_card.position = position
 	$"../CardManager".add_child(new_card)
+
+	# Apply draw effect buffer
+	for effect in draw_effects_buffer:
+		effect.target = new_card
+		if effect.can_play():
+			await effect.apply()
+			draw_effects_buffer.erase(effect)
 
 	# Add card scene to the game scene and play animation
 	hand.add_card_to_hand(new_card)

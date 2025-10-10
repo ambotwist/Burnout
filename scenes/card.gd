@@ -20,7 +20,7 @@ var color: String
 var effect_types: Array[Effect.Effect_Type] = []
 var title: String
 var description: String
-
+var prerequisite: Callable = func() -> bool: return true
 
 func _ready() -> void:
 	# Initialize card setup
@@ -53,7 +53,8 @@ func get_card_data() -> Dictionary:
 		"color": color,
 		"effect_types": effect_types,
 		"title": title,
-		"description": description
+		"description": description,
+		"prerequisite": prerequisite
 	}
 
 
@@ -66,6 +67,7 @@ func assign_data(db_card_name: String) -> void:
 	effect_types.assign(DB_CARDS[db_card_name][3])
 	title = DB_CARDS[db_card_name][4]
 	description = DB_CARDS[db_card_name][5]
+	prerequisite = CardDatabase.get_prerequisite(DB_CARDS[db_card_name][6])
 
 	# Update the UI labels
 	if has_node("Cost"):
@@ -79,6 +81,13 @@ func assign_data(db_card_name: String) -> void:
 
 func print_card_data() -> void:
 	print(get_card_data())
+
+
+# Check if the card meets its prerequisite to be played
+func can_be_played() -> bool:
+	if prerequisite and prerequisite is Callable:
+		return prerequisite.call()
+	return true  # Default to playable if no prerequisite
 
 
 # Emits signal when the cursor enters the Area2D

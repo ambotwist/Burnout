@@ -15,14 +15,6 @@ var discard_pile
 var mental_health_label
 var productivity_label
 
-# Score variables
-var mental_health = 0
-var productivity = 0
-
-# Schedule logic variables
-var current_slot = 0
-var current_time = 0
-
 # Card tracking
 var playing_card: Card = null
 var current_card_index = 0
@@ -30,6 +22,7 @@ var played_cards = []
 
 var effect_queue: Array[Effect] = []
 var draw_effects_buffer: Array[Effect] = []
+var play_effects_buffer: Array[Effect] = []  # Effects waiting to modify played cards
 var ticker_effects: Array[Effect] = []
 var persistant_effects: Array[Effect] = []
 
@@ -41,6 +34,9 @@ func _ready():
 
 	# Register this GameManager instance with EffectDatabase
 	EffectDatabase.set_game_manager(self)
+
+	# Initialize GameState with default values (already set in GameState)
+	# GameState starts with default values from its own initialization
 
 	# Load the deck from DeckManager if available
 	var selected_deck = DeckManager.get_deck()
@@ -74,7 +70,7 @@ func deal_cards():
 	# wait 1 second before dealing cards
 	await get_tree().create_timer(1.0).timeout
 	for i in range(5):
-		deck.draw_card()
+		deck.draw_card(draw_effects_buffer)
 		await get_tree().create_timer(0.1).timeout
 
 
@@ -82,24 +78,38 @@ func deal_cards():
 
 # Called when a card is used
 func play_card(card):
-	# Check if the card fits in the schedule
-	if card.duration + current_time > 16:
-		hand.snap_card_to_hand(card)
-		card_manager.dehighlight_card(card)
-		return
-	
 	playing_card = card
+
+	# Return if the card can't be played (prerequisites)
+	if not playing_card.can_be_played():
+		hand.snap_card_to_hand(playing_card)
+		card_manager.dehighlight_card(playing_card)
+		return
+
+	# Apply any waiting play effects BEFORE checking schedule fit
+	# This ensures duration modifiers work correctly
+	var triggered_effects = []
+	for effect in play_effects_buffer:
+		if effect.prerequisite == null or effect.prerequisite.call():
+			effect.target = playing_card
+			effect.apply()  # Apply immediately to modify card stats
+			triggered_effects.append(effect)
+			# Check if it's a CardModifierEffect to access duration_modifier
+			if effect is CardModifierEffect:
+				print("Applied play effect to %s: duration modifier = %d" % [playing_card.card_name, effect.duration_modifier])
+
+	# Remove triggered effects from buffer
+	for triggered in triggered_effects:
+		play_effects_buffer.erase(triggered)
+
+	# NOW check if the card fits in the schedule (after modifiers)
+	if playing_card.duration + GameState.current_time > 16:
+		hand.snap_card_to_hand(playing_card)
+		card_manager.dehighlight_card(playing_card)
+		return
 	
 	# Create the card effects
 	var card_effects: Array[Effect] = EffectDatabase.call(playing_card.card_name)
-
-	# Return if the card can't be played
-	for card_effect in card_effects:
-		if card_effect and not card_effect.can_play():
-			print("card can't be played")
-			hand.snap_card_to_hand(playing_card)
-			card_manager.dehighlight_card(playing_card)
-			return
 
 	# Add card effect to effect queue
 	effect_queue.append_array(card_effects)
@@ -111,6 +121,9 @@ func play_card(card):
 
 	# Add hold effects to effect queue
 	for hand_card in hand.hand:
+		# Skip if card was freed (safety check)
+		if not is_instance_valid(hand_card):
+			continue
 		if hand_card.effect_types.has(Effect.Effect_Type.HOLD_EFFECT):
 			var hand_card_effect = EffectDatabase.call(card.card_name)
 			if hand_card_effect.can_play():
@@ -155,39 +168,42 @@ func play_card(card):
 	# Free the card
 	playing_card.queue_free()
 
-	# Fill the schedule with the card
+	# Fill the schedule with the card (only if duration > 0)
 	schedule.fill_slot(slot_color, slot_size)
-	current_slot += 1
 
-	# Update current time
-	current_time += playing_card.duration
+	# Only increment slot and time if the card has duration
+	if slot_size > 0:
+		GameState.current_slot += 1
+		# Update GameState with the card that was just played
+		GameState.on_card_played(playing_card)
+	else:
+		# For duration 0 cards, still update some state but not time
+		GameState.last_played_card = playing_card
+		GameState.last_played_card_type = playing_card.color
+		GameState.cards_played_today.append(playing_card.card_name)
+		GameState.productivity_total += playing_card.productivity
+		print("Played duration 0 card: ", playing_card.card_name, " -> Productivity: +", playing_card.productivity)
 
-	# Update Scores (use the modified productivity after effects are applied)
-	productivity += playing_card.productivity
-	print("Card played: ", playing_card.card_name, " -> Productivity: +", playing_card.productivity, " (Time: ", current_time, "/16)")
+	if slot_size > 0:
+		print("Card played: ", playing_card.card_name, " -> Productivity: +", playing_card.productivity, " (Time: ", GameState.current_time, "/16)")
 
 	# End of turn
 	playing_card = null
 	update_ui()
-	deck.draw_card()
+	deck.draw_card(draw_effects_buffer) 
 
 
 func process_effect_queue():
-	for i in range(effect_queue.size()):
-		var effect = effect_queue[i]
-
-		# Apply the effect and always await (works for both sync and async)
-		var result = await effect.apply()
-
-		# If apply() returns a value (like CardCreationEffect returns the created card),
-		# and the next effect exists, set it as the next effect's target
-		if result != null and i + 1 < effect_queue.size():
-			effect_queue[i + 1].target = result
-
-	effect_queue.clear()
+	for effect in effect_queue:
+		if effect.can_play():
+			await effect.apply()
+			effect_queue.erase(effect)
 
 
 func discard_card(card: Card) -> void:
+	# Remove from hand first if it's there
+	hand.remove_card_from_hand(card)
+
 	card_manager.animate_card_to_position_and_rotation(card, discard_pile.position, 0.0)
 	discard_pile.pile.append(card.get_card_data())
 	await fade_out_card(card)
@@ -203,7 +219,7 @@ func add_card_to_game(card: Card) -> void:
 
 # Updates the UI
 func update_ui() -> void:
-	productivity_label.text = "Productivity: " + str(productivity)
+	productivity_label.text = "Productivity: " + str(GameState.productivity_total)
 
 
 func fade_out_card(card: Card) -> void:
