@@ -1,13 +1,18 @@
 extends Node2D
 class_name Hand
 
-var center_screen_x
 var hand = []
+var card_manager: CardManager
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	center_screen_x = get_viewport().size.x / 2
+	card_manager = $"../CardManager"
 
+
+# Connects card signals to the card manager
+func connect_card_signals(card):
+	if card_manager:
+		card_manager.connect_card_signals(card)
 
 # Adds given card to the hand
 func add_card_to_hand(card):
@@ -47,19 +52,19 @@ func update_hand_positions():
 func calculate_card_position(index):
 	var card_count = hand.size()
 	if card_count == 1:
-		return Vector2(center_screen_x, GameConstants.HAND_Y_POSITION)
+		return Vector2(0, 0)
 
 	# Calculate the position of the card at the given index
 	var card_overlap = GameConstants.CARD_SCALED_WIDTH * 0.7
 	var total_width = (card_count - 1) * card_overlap
-	var start_x = center_screen_x - total_width / 2
+	var start_x = 0 - total_width / 2
 	var x_position = start_x + index * card_overlap
 
 	# Create upward curve using a parabola
 	var curve_height = 30
 	var normalized_pos = (index - (card_count - 1) / 2.0) / max(1, (card_count - 1) / 2.0)
 	var y_offset = -curve_height * (1 - normalized_pos * normalized_pos)
-	var y_position = GameConstants.HAND_Y_POSITION + y_offset
+	var y_position = y_offset
 
 	return Vector2(x_position, y_position)
 

@@ -11,7 +11,7 @@ const CARDS = { #Cost #Duration #Productivity #Effect_Types #Title #Description 
 }
 
 # Prerequisite functions - return true if the card can be played
-static func get_prerequisite(prerequisite_id: String) -> Callable:
+func get_prerequisite(prerequisite_id: String) -> Callable:
 	match prerequisite_id:
 		"morning_only":
 			return func() -> bool:

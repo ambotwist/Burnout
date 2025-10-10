@@ -104,8 +104,10 @@ horizontal_alignment = 2
 vertical_alignment = 1
 
 [node name="CardManager" parent="." instance=ExtResource("2_lnu2h")]
+position = Vector2(960, 540)
 
 [node name="Hand" parent="." instance=ExtResource("5_p57ef")]
+position = Vector2(960, 940)
 
 [node name="Deck" parent="." instance=ExtResource("6_p57ef")]
 position = Vector2(188, 826)

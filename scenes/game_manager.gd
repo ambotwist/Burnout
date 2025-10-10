@@ -200,9 +200,9 @@ func discard_card(card: Card) -> void:
 	card.queue_free()
 
 
-func add_card_to_game(card: Card) -> void:
-	card.position = get_viewport().size / 2
-	card_manager.add_child(card)
+func add_card_to_game(card: Card, card_position: Vector2) -> void:
+	card.position = card_position
+	hand.add_child(card)
 
 
 ### --- UI FUNCTIONS --- ####

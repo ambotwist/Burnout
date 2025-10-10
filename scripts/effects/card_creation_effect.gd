@@ -10,6 +10,6 @@ func _init() -> void:
 func apply():
 	if game_manager != null:
 		var card_copy = target.copy_card()
-		game_manager.add_card_to_game(card_copy)
+		game_manager.add_card_to_game(card_copy, Vector2(0, 0))
 		return card_copy
 		

@@ -21,14 +21,14 @@ func draw_card(draw_effects_buffer: Array[Effect]) -> void:
 	# Draw and remove the top card from the deck
 	var drawn_card = deck[0]
 	deck.erase(drawn_card)
-		
-	var card_scene = preload(CARD_SCENE_PATH)
+
+	var card_scene = preload(CARD_SCENE_PATH)	
 	var new_card: Card = card_scene.instantiate()
 	new_card.assign_data(drawn_card)
 
 	# Add card scene to the game scene
 	new_card.position = position
-	$"../CardManager".add_child(new_card)
+	hand.add_child(new_card)
 
 	# Apply draw effect buffer
 	for effect in draw_effects_buffer:
@@ -45,3 +45,13 @@ func draw_card(draw_effects_buffer: Array[Effect]) -> void:
 	if deck.size() <= 0:
 		$Area2D/CollisionShape2D.disabled = true
 		$Sprite2D.visible = false
+
+
+func insight_n_cards(n: int) -> void:
+	var card_scene = preload(CARD_SCENE_PATH)	
+	for i in range(n):
+		if deck[i] != null:
+			var card_n = card_scene.instantiate()
+			card_n.assign_data(deck[i])
+			card_n.position = Vector2(-(n * GameConstants.CARD_SCALED_WIDTH)/2 + i * GameConstants.CARD_SCALED_WIDTH, 0)
+			hand.add_child(card_n)	

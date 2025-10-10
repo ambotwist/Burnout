@@ -10,7 +10,8 @@ enum Effect_Type {
     HOLD_EFFECT,
     CARD_MODIFIER,
     CARD_CREATION,
-    CARD_ARCHIVATION
+    CARD_ARCHIVATION,
+    DRAW_EFFECT
 }
 
 func can_play() -> bool:

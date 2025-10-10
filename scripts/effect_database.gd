@@ -94,7 +94,13 @@ func classement_prioritaire() -> Array[Effect]:
 
 	# Only return the archive effect for immediate processing
 	return [archive_effect]	
+
 # prevision_budgetaire: Insight (pioche 3 cartes et en choisit une), La carte pioche double sa prod de base.
+func prevision_budgetaire() -> Array[Effect]:
+	var draw_effect = InsightEffect.new()
+	draw_effect.deck = game_manager.deck.deck
+	draw_effect.insight_count = 3
+	return [draw_effect]
 
 # dossier_persistant: +1 de prod a chaque fois que la carte a ete defaussee precedemmjent pendant la run.
 

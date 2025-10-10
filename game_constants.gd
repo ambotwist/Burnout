@@ -13,10 +13,6 @@ const CARD_SCRIPT_SCALE = 1.0
 const CARD_SCALED_WIDTH = CARD_WIDTH * CARD_EDITOR_SCALE
 const CARD_SCALED_HEIGHT = CARD_HEIGHT * CARD_EDITOR_SCALE
 
-# Hand Properties
-@warning_ignore("integer_division")
-const HAND_Y_POSITION = 1080 - 210/2 - 50
-
 # Enumeration of possible interaction states for cards
 enum DraggableState {
 	IDLE,

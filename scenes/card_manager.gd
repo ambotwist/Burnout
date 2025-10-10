@@ -111,8 +111,8 @@ func release_card():
 # Drags given card with the mouse cursor
 func drag_card(card):
 	var mouse_position = get_global_mouse_position()
-	card.position = Vector2(
-		clamp(mouse_position.x, 0, screen_size.x), 
+	card.global_position = Vector2(
+		clamp(mouse_position.x, 0, screen_size.x),
 		clamp(mouse_position.y, 0, screen_size.y))
 
 
