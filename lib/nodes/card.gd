@@ -9,7 +9,8 @@ signal mouse_entered_card(card)
 signal mouse_exited_card(card)
 
 # Class references
-var parent: Pile
+var card_manager: CardManager
+var parent_pile: Pile
 
 # Node children
 var collision_shape
@@ -31,6 +32,8 @@ var effect_types: Array
 
 func _ready() -> void:
 	card_scene = preload("res://lib/nodes/card.tscn")
+	if get_parent() is not Control:
+		card_manager = get_parent()
 	collision_shape = $Area2D/CollisionShape2D
 	sprites = $Sprites
 	animation_player = $AnimationPlayer

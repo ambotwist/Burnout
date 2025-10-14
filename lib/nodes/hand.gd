@@ -50,3 +50,9 @@ func calculate_card_rotation(card: Card) -> float:
 	var max_rotation = deg_to_rad(7)
 	var normalized_position = (card_positions.get(card) - (card_count - 1) / 2.0) / max(1, (card_count - 1) / 2.0)
 	return normalized_position * max_rotation
+
+
+func get_card_z_index(card: Card) -> int:
+	if card_positions.has(card):
+		return card_positions.get(card) + 1
+	return 1

@@ -39,6 +39,8 @@ func _setup_references():
 func _setup_signal_connections() -> void:
 	input_manager.left_mouse_button_pressed.connect(on_left_mouse_button_pressed)
 	input_manager.left_mouse_button_released.connect(on_left_mouse_button_released)
+	input_manager.hovered_over_object.connect(on_object_hover)
+	input_manager.dehovered_from_object.connect(on_object_dehover)
 
 func _init_draw_pile() -> void:
 	for card_data in DeckManager.get_deck():
@@ -51,6 +53,8 @@ func _init_draw_pile() -> void:
 # - Draw pile functions -
 
 func draw_card() -> void:
+	if draw_pile.is_empty():
+		return
 	var card_data = draw_pile.remove_top_card()
 	var card = card_scene.instantiate()
 	card.position = draw_pile.position
@@ -71,8 +75,8 @@ func play_card(card: Card) -> void:
 
 
 func discard_card(card: Card) -> void:
-	if card.parent != null:
-		card.parent.remove_from_pile(card)
+	if card.parent_pile != null:
+		card.parent_pile.remove_from_pile(card)
 	move_card_to(card, discard_pile.position, 0, true)
 	fade_out_card(card)
 	discard_pile.add_to_pile(card)
@@ -84,7 +88,7 @@ func add_card_to_overlay_zone(card: Card) -> void:
 
 
 func add_card_to_hand(card: Card) -> void:
-	card.parent = hand
+	card.parent_pile = hand
 	hand.cards.append(card)
 	hand.update_cards_hand_positions()
 	card.animation_player.play("card_flip")
@@ -117,18 +121,21 @@ func drag_card(card: Card) -> void:
 
 
 func highlight_card(card: Card) -> void:
-	card.z_index = 5
-	scale_card(card, Vector2(GameConstants.CARD_SCALED_WIDTH, GameConstants.CARD_SCALED_HEIGHT))
+	card.z_index += 100
+	scale_card(card, GameConstants.HIGHLIGHT_SCALE)
 
-	if card.parent is Hand:
-		move_card_to(card, Vector2(card.position.x, card.position.y - 30), 0, false)
+	if card.parent_pile is Hand:
+		move_card_to(card, Vector2(card.position.x, hand.position.y - 50), 0, false)
 
 
 func dehighlight_card(card: Card) -> void:
-	scale_card(card, Vector2(GameConstants.CARD_WIDTH_SCALE, GameConstants.CARD_HEIGHT_SCALE))
+	card.z_index = hand.get_card_z_index(card)
+	scale_card(card, Vector2(1, 1))
 
-	if card.parent is Hand:
-		move_card_to(card, Vector2(card.position.x, card.position.y - 30), 0, false)
+	if card.parent_pile is Hand:
+		var card_position = hand.calculate_card_position(card)
+		var card_rotation = hand.calculate_card_rotation(card)
+		move_card_to(card, Vector2(card_position.x, card_position.y), card_rotation, false)
 
 
 ### --- CARD ANIMATION --- ###
@@ -156,7 +163,7 @@ func fade_out_card(card: Card) -> void:
 func scale_card(card: Card, card_scale: Vector2) -> void:
 	card.collision_shape.disabled = true
 	var tween = get_tree().create_tween()
-	tween.tween_property(card, "scale", card_scale.x, card_scale.y) 
+	tween.tween_property(card, "scale", card_scale, 0.1) 
 	tween.finished.connect(func():
 		card.collision_shape.disabled = false)
 
@@ -175,11 +182,11 @@ func on_left_mouse_button_released() -> void:
 	release_card()
 
 
-func _on_mouse_entered_card(card: Card) -> void:
-	if not held_card:
-		highlight_card(card)
+func on_object_hover(object) -> void:
+	if object is Card:
+		highlight_card(object)
 
 
-func _on_mouse_exited_card(card: Card) -> void:
-	if card != held_card:
-		dehighlight_card(card)
+func on_object_dehover(object) -> void:
+	if object is Card:
+		dehighlight_card(object)

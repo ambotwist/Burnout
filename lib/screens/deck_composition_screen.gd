@@ -52,7 +52,7 @@ func create_card_display(card_key: String) -> void:
 	card_instance.assign_data(CardData.create_card_data_from_type(card_key))
 
 	# Scale down the card for grid display (scale factor, not pixel dimensions)
-	var scale_factor = GameConstants.CARD_SCALED_WIDTH / (GameConstants.CARD_WIDTH * GameConstants.CARD_EDITOR_SCALE)
+	var scale_factor = GameConstants.CARD_SCALED_WIDTH / (GameConstants.CARD_WIDTH * GameConstants.CARD_GAME_SCALE)
 	card_instance.scale = Vector2(scale_factor, scale_factor)
 
 	# Center the card in its container

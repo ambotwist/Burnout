@@ -37,5 +37,13 @@ func peek_top_n_cards(n: int) -> Array:
 	return result
 
 
+func is_empty() -> bool:
+	return cards.is_empty()
+
+
+func size() -> int:
+	return cards.size()
+
+
 func shuffle() -> void:
 	cards.shuffle()

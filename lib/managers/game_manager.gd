@@ -27,6 +27,8 @@ func _ready() -> void:
 	_setup_signal_connections()
 	await get_tree().create_timer(2).timeout
 	for i in range(5):
+		if card_manager.draw_pile.is_empty():
+			return
 		card_manager.draw_card()
 		await get_tree().create_timer(0.1).timeout
 
