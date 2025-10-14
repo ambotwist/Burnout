@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://btwsd22y2ccdl"]
+[gd_scene load_steps=12 format=3 uid="uid://btwsd22y2ccdl"]
 
 [ext_resource type="Script" path="res://lib/screens/game.gd" id="1_lbhrr"]
 [ext_resource type="PackedScene" uid="uid://d3km6rhoy317o" path="res://lib/managers/card_manager.tscn" id="2_lnu2h"]
@@ -10,9 +10,7 @@
 [ext_resource type="Script" uid="uid://bwjk0ewxfnapp" path="res://lib/nodes/hand.gd" id="7_mf4sp"]
 [ext_resource type="Script" uid="uid://bcav5l5xowgm0" path="res://lib/managers/input_manager.gd" id="7_u5sy4"]
 [ext_resource type="PackedScene" uid="uid://w8uc2p3bqdpx" path="res://lib/nodes/discard_pile.tscn" id="7_yxmsq"]
-[ext_resource type="PackedScene" uid="uid://1paxiu02pe2s" path="res://lib/nodes/play_pile.tscn" id="8_iluk8"]
 [ext_resource type="Script" uid="uid://cpc0ba5vpyxqa" path="res://lib/nodes/draw_pile.gd" id="9_f5w6j"]
-[ext_resource type="Script" uid="uid://bvavh1xobv7ky" path="res://lib/nodes/play_pile.gd" id="12_mf4sp"]
 
 [node name="Game" type="Node2D"]
 script = ExtResource("1_lbhrr")
@@ -84,9 +82,6 @@ script = ExtResource("9_f5w6j")
 [node name="DiscardPile" parent="CardManager" instance=ExtResource("7_yxmsq")]
 position = Vector2(826, 348)
 script = null
-
-[node name="PlayPile" parent="CardManager" instance=ExtResource("8_iluk8")]
-script = ExtResource("12_mf4sp")
 
 [node name="InputManager" type="Node2D" parent="."]
 script = ExtResource("7_u5sy4")

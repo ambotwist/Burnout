@@ -8,7 +8,7 @@ signal dehovered_from_object(object)
 
 var hovered_object = null
 var hover_grace_period: float = 0.0
-const HOVER_GRACE_TIME: float = 0.1  # 100ms grace period to prevent edge jitter
+const HOVER_GRACE_TIME: float = 0.2
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
