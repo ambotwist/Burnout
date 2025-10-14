@@ -1,6 +1,7 @@
 extends Node2D
 class_name CardManager
 
+signal card_held(card)
 signal card_released(card)
 
 var card_scene
@@ -103,7 +104,7 @@ func _process(delta: float) -> void:
 
 func hold_card(card: Card) -> void:
 	held_card = card
-	#play_pile.fade_in()
+	card_held.emit(card)
 
 
 func release_card() -> void:

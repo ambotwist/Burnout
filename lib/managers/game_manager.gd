@@ -9,6 +9,7 @@ var input_manager: InputManager
 var card_manager: CardManager
 # @onready var effects_manager: EffectsManager = $"../EffectsManager" as EffectsManager  # TODO: Add EffectsManager to scene
 var effects_manager: EffectsManager
+var play_zone: PlayZone
 
 # UI variables
 @onready var mental_health_label = $"../UI/Scores/MentalHealthLabel"
@@ -25,6 +26,7 @@ var played_card: Array[Card] = []
 func _ready() -> void:
 	_setup_references()
 	_setup_signal_connections()
+	play_zone.modulate.a = 0.0
 	await get_tree().create_timer(2).timeout
 	for i in range(5):
 		if card_manager.draw_pile.is_empty():
@@ -36,9 +38,11 @@ func _ready() -> void:
 func _setup_references() -> void:
 	input_manager = $"../InputManager"
 	card_manager = $"../CardManager"
+	play_zone = $"../UI/PlayZone"
 
 
 func _setup_signal_connections() -> void:
+	card_manager.card_held.connect(on_card_held)
 	card_manager.card_released.connect(on_card_released)
 
 
@@ -48,8 +52,14 @@ func update_ui() -> void:
 
 ### --- PROCESSING --- ###
 
+func on_card_held(card: Card) -> void:
+	play_zone.fade_in_zone()
+
+
 func on_card_released(card: Card) -> void:
 	card_manager.hand.update_cards_hand_positions()
+	play_zone.fade_out_zone()
+	
 
 
 func on_effects_queue_processed() -> void:
