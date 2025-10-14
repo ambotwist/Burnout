@@ -16,11 +16,12 @@ config/features=PackedStringArray("4.5", "Mobile")
 
 [autoload]
 
-GameConstants="*res://game_constants.gd"
-CardDatabase="*res://scripts/card_database.gd"
-EffectDatabase="*res://scripts/effect_database.gd"
-DeckManager="*res://scripts/deck_manager.gd"
-GameState="*res://scripts/game_state.gd"
+DeckManager="*res://lib/managers/deck_manager.gd"
+EffectsManager="*res://lib/managers/effects_manager.gd"
+GameState="*res://lib/core/game_state.gd"
+CardDatabase="*res://lib/databases/card_database.gd"
+EffectDatabase="*res://lib/databases/effect_database.gd"
+GameConstants="*res://lib/core/game_constants.gd"
 
 [display]
 
