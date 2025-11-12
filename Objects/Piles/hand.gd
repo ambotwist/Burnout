@@ -6,6 +6,9 @@ var card_positions: Dictionary = {}
 func _ready() -> void:
 	super._ready()
 
+	# Connect to game state change signal to update card displays
+	Events.game_state_changed.connect(_on_game_state_changed)
+
 
 func calculate_card_position(card: Card) -> Vector2:
 	var card_count = cards.size()
@@ -42,3 +45,26 @@ func get_card_z_index(card: Card) -> int:
 	if card_positions.has(card):
 		return card_positions.get(card) + 1
 	return 1
+
+
+## Called when game state changes - updates all card displays with simulated values
+func _on_game_state_changed(game_state: Dictionary) -> void:
+	# Simulate and update each card in hand
+	for card in cards:
+		if not card is Card or not card.card_data:
+			continue
+
+		# Get base values from strategy
+		var base_productivity = card.card_data.strategy.productivity
+		var base_duration = card.card_data.strategy.duration
+
+		# Simulate what values the card would have if played now
+		var simulated = EffectSimulator.simulate_card_play(card.card_data, game_state)
+
+		# Update the card's display with color coding
+		card.update_display_with_preview(
+			base_productivity,
+			simulated.productivity,
+			base_duration,
+			simulated.duration
+		)

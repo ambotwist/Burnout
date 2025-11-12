@@ -28,7 +28,7 @@ func apply_card_data() -> void:
 
 	title_label.text = card_data.strategy.get_title()
 	description_label.text = card_data.strategy.get_description()
-	productivity_label.text = str(card_data.strategy.productivity)
+	productivity_label.text = str(card_data.productivity)
 	duration_label.text = format_duration(card_data.duration)
 
 
@@ -40,3 +40,46 @@ func format_duration(duration_slots: int) -> String:
 
 	# Format as "0h15", "1h45", etc.
 	return "%dh%02d" % [hours, minutes]
+
+
+## Update card display with simulated values (shows buffs/debuffs with color coding)
+func update_display_with_preview(base_productivity: int, predicted_productivity: int, base_duration: int, predicted_duration: int) -> void:
+	# Update productivity display with color coding
+	if predicted_productivity > base_productivity:
+		# Buff: show in green
+		productivity_label.text = str(predicted_productivity)
+		productivity_label.add_theme_color_override("default_color", Color.GREEN)
+	elif predicted_productivity < base_productivity:
+		# Debuff: show in red
+		productivity_label.text = str(predicted_productivity)
+		productivity_label.add_theme_color_override("default_color", Color.RED)
+	else:
+		# No change: show in white
+		productivity_label.text = str(predicted_productivity)
+		productivity_label.remove_theme_color_override("default_color")
+
+	# Update duration display with color coding
+	if predicted_duration < base_duration:
+		# Duration reduction is a buff (less time spent): show in green
+		duration_label.text = format_duration(predicted_duration)
+		duration_label.add_theme_color_override("default_color", Color.GREEN)
+	elif predicted_duration > base_duration:
+		# Duration increase is a debuff (more time spent): show in red
+		duration_label.text = format_duration(predicted_duration)
+		duration_label.add_theme_color_override("default_color", Color.RED)
+	else:
+		# No change: show in white
+		duration_label.text = format_duration(predicted_duration)
+		duration_label.remove_theme_color_override("default_color")
+
+
+## Reset card display to base values (no color coding)
+func reset_display_to_base() -> void:
+	if not card_data:
+		return
+
+	productivity_label.text = str(card_data.strategy.productivity)
+	productivity_label.remove_theme_color_override("default_color")
+
+	duration_label.text = format_duration(card_data.strategy.duration)
+	duration_label.remove_theme_color_override("default_color")

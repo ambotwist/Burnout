@@ -1,0 +1,7 @@
+extends Node
+
+## Global event bus for game-wide signals
+## Emits when game state changes and cards in hand should refresh their displays
+## Access via autoload: Events.game_state_changed.emit(...)
+
+signal game_state_changed(game_state: Dictionary)

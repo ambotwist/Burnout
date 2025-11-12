@@ -42,9 +42,15 @@ func initialize_game() -> void:
 	await get_tree().create_timer(1.0).timeout
 	for i in range(10):
 		if card_manager.draw_pile.is_empty():
-			return
+			break
 		card_manager.draw_card()
 		await get_tree().create_timer(0.1).timeout
+
+	# Wait one frame to ensure Hand._ready() has connected to the signal
+	await get_tree().process_frame
+
+	# Initialize card displays after initial draw
+	Events.game_state_changed.emit(_build_game_state())
 
 
 func load_all_card_strategies() -> Array[CardStrategy]:
@@ -147,6 +153,9 @@ func on_card_released(card: Card) -> void:
 
 		# NOW update previous_card after all effects have triggered
 		previous_card = card.card_data
+
+		# Notify that game state changed (previous_card updated)
+		Events.game_state_changed.emit(_build_game_state())
 	else:
 		card_manager.update_cards_hand_positions()
 
@@ -239,6 +248,10 @@ func trigger_card_effects(card: Card, trigger: GameEnums.EffectTrigger) -> void:
 	focus_start_time = context.focus_start_time
 	focus_end_time = context.focus_end_time
 
+	# Notify that game state may have changed (focus window updated)
+	if context.focus_start_time != -1.0:
+		Events.game_state_changed.emit(_build_game_state())
+
 	# Execute all queued commands after effects have been applied
 	_execute_queued_commands(context)
 
@@ -265,8 +278,27 @@ func _execute_queued_commands(context: GameContext) -> void:
 		if command.next_command:
 			context.command_queue.push_front(command.next_command)
 
+	# Notify that game state may have changed after command execution
+	Events.game_state_changed.emit(_build_game_state())
+
 
 ## Public method to queue a command (for use by other commands)
 func queue_command(command: GameCommand, context: GameContext) -> void:
 	if command:
 		context.command_queue.append(command)
+
+
+## Build game state dictionary for effect simulation and prerequisites
+func _build_game_state() -> Dictionary:
+	return {
+		"hand": card_manager.hand,
+		"draw_pile": card_manager.draw_pile,
+		"discard_pile": discard_pile,
+		"schedule": schedule,
+		"current_time": schedule.current_time if schedule else 0.0,
+		"time_left": schedule.time_left if schedule else 0,
+		"scheduled_cards": scheduled_cards,
+		"previous_card": previous_card,
+		"focus_start_time": focus_start_time,
+		"focus_end_time": focus_end_time
+	}

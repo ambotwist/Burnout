@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 
 InputManager="*res://Managers/input_manager.tscn"
 GameEnums="*res://Utils/game_enums.gd"
+Events="*res://Utils/events.gd"
 
 [display]
 
