@@ -235,6 +235,10 @@ func trigger_card_effects(card: Card, trigger: GameEnums.EffectTrigger) -> void:
 			print("  → Applying effect: ", effect.get_script().resource_path.get_file())
 			effect.apply_effect(context)
 
+	# Sync focus window state from context (effects may have updated it)
+	focus_start_time = context.focus_start_time
+	focus_end_time = context.focus_end_time
+
 	# Execute all queued commands after effects have been applied
 	_execute_queued_commands(context)
 
