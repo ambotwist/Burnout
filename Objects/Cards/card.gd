@@ -29,4 +29,14 @@ func apply_card_data() -> void:
 	title_label.text = card_data.strategy.get_title()
 	description_label.text = card_data.strategy.get_description()
 	productivity_label.text = str(card_data.strategy.productivity)
-	duration_label.text = str(card_data.strategy.duration)
+	duration_label.text = format_duration(card_data.duration)
+
+
+func format_duration(duration_slots: int) -> String:
+	# Convert slots to minutes (each slot = 15 minutes)
+	var total_minutes = duration_slots * 15
+	var hours = total_minutes / 60
+	var minutes = total_minutes % 60
+
+	# Format as "0h15", "1h45", etc.
+	return "%dh%02d" % [hours, minutes]
