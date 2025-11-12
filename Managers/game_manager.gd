@@ -14,6 +14,10 @@ var scheduled_cards: Array[CardData] = []
 var previous_card: CardData = null
 var total_productivity: int = 0
 
+# Focus window tracking
+var focus_start_time: float = -1.0
+var focus_end_time: float = -1.0
+
 
 ### SETUP ###
 
@@ -85,6 +89,26 @@ func check_if_card_is_over_schedule(card: Card) -> void:
 	var is_over = schedule_rect.has_point(card_position)
 	if is_over != card_is_over_schedule:
 		card_is_over_schedule = is_over
+
+
+# Apply focus reduction if the card is being played within the focus window
+func apply_focus_reduction(card: Card) -> void:
+	if not card or not card.card_data:
+		return
+
+	# Check if focus window is active
+	if focus_start_time < 0 or focus_end_time < 0:
+		return  # No active focus window
+
+	var current_time = schedule.current_time if schedule else 0.0
+
+	# Check if card starts within the focus window
+	if current_time >= focus_start_time and current_time < focus_end_time:
+		# Only reduce duration if it's greater than 1 (more than 15 minutes)
+		if card.card_data.duration > 1:
+			var old_duration = card.card_data.duration
+			card.card_data.duration -= 1  # Reduce by 1 slot (15 minutes)
+			print("  → FOCUS: Duration reduced from ", old_duration, " to ", card.card_data.duration, " (saved 15 min)")
 	
 
 func on_card_released(card: Card) -> void:
@@ -99,6 +123,9 @@ func on_card_released(card: Card) -> void:
 
 		# Trigger BEFORE_PLAY effects
 		trigger_card_effects(card, GameEnums.EffectTrigger.BEFORE_PLAY)
+
+		# Apply focus reduction if card is played within focus window
+		apply_focus_reduction(card)
 
 		var slot_position = schedule.get_slot_position(card.card_data.duration)
 		card_manager.add_to_schedule(card, slot_position)
@@ -142,7 +169,9 @@ func can_play_card(card: Card) -> bool:
 		"current_time": schedule.current_time if schedule else 0.0,
 		"time_left": schedule.time_left if schedule else 0,
 		"scheduled_cards": scheduled_cards,
-		"previous_card": previous_card
+		"previous_card": previous_card,
+		"focus_start_time": focus_start_time,
+		"focus_end_time": focus_end_time
 	}
 
 	var context = GameContext.create_for_card(card, game_state)
@@ -181,7 +210,9 @@ func trigger_card_effects(card: Card, trigger: GameEnums.EffectTrigger) -> void:
 		"current_time": schedule.current_time if schedule else 0.0,
 		"time_left": schedule.time_left if schedule else 0,
 		"scheduled_cards": scheduled_cards,
-		"previous_card": previous_card
+		"previous_card": previous_card,
+		"focus_start_time": focus_start_time,
+		"focus_end_time": focus_end_time
 	}
 
 	# Create context using factory method

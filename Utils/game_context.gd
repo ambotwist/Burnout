@@ -47,6 +47,16 @@ var scheduled_cards: Array[CardData] = []
 var previous_card: CardData = null
 
 # ========================================
+# FOCUS WINDOW
+# ========================================
+
+## Focus effect start time (in schedule hours, e.g., 9.5)
+var focus_start_time: float = -1.0
+
+## Focus effect end time (in schedule hours, e.g., 11.5)
+var focus_end_time: float = -1.0
+
+# ========================================
 # COMMAND QUEUE
 # ========================================
 
@@ -157,5 +167,7 @@ static func create_for_card(card_node: Card, game_state: Dictionary = {}) -> Gam
 	context.time_left = game_state.get("time_left", 0)
 	context.scheduled_cards = game_state.get("scheduled_cards", [])
 	context.previous_card = game_state.get("previous_card")
+	context.focus_start_time = game_state.get("focus_start_time", -1.0)
+	context.focus_end_time = game_state.get("focus_end_time", -1.0)
 
 	return context

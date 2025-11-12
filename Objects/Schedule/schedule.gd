@@ -14,6 +14,10 @@ var schedule_height := 150
 var horizontal_divider_height = 50
 var time_slot_scene
 
+# Focus window tracking (set by FocusEffect)
+var focus_start_time: float = -1.0
+var focus_end_time: float = -1.0
+
 func _ready() -> void:
 	time_slot_scene = preload(TIME_SLOT_SCENE_PATH)
 	
@@ -36,10 +40,43 @@ func _ready() -> void:
 	queue_redraw()
 
 
+func draw_focus_window(grid_width: float) -> void:
+	# Only draw if focus window is active
+	if focus_start_time < 0 or focus_end_time < 0:
+		return
+
+	# Calculate x positions for focus window
+	var start_offset = focus_start_time - start_of_day
+	var end_offset = focus_end_time - start_of_day
+
+	var x_start = start_offset * grid_width
+	var x_end = end_offset * grid_width
+	var window_width = x_end - x_start
+
+	# Draw semi-transparent blue overlay
+	var focus_color = Color(0.3, 0.6, 1.0, 0.15)  # Light blue with transparency
+	draw_rect(
+		Rect2(x_start, horizontal_divider_height, window_width, schedule_height),
+		focus_color,
+		true  # filled
+	)
+
+	# Draw border around focus window
+	var border_color = Color(0.3, 0.6, 1.0, 0.4)  # Same blue, more opaque
+	draw_rect(
+		Rect2(x_start, horizontal_divider_height, window_width, schedule_height),
+		border_color,
+		false,  # not filled
+		2  # border width
+	)
+
+
 func _draw():
 	var day_length = end_of_day - start_of_day
 	var grid_width = size.x / day_length
 
+	# Draw focus window overlay if active (behind grid lines)
+	draw_focus_window(grid_width)
 
 	draw_line(Vector2(0, horizontal_divider_height), Vector2(size.x, horizontal_divider_height), Color(1, 1, 1, 0.6), 4)
 
