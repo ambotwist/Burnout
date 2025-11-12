@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="CardStrategy" load_steps=9 format=3 uid="uid://40bgaiqylm87"]
+
+[ext_resource type="Script" uid="uid://c6hm0eda7f1ut" path="res://Strategies/effect_strategy.gd" id="1_jjaiv"]
+[ext_resource type="Texture2D" uid="uid://dpy4q4icnep26" path="res://Assets/CardIllustrations/illu_rush.png" id="2_vc6l7"]
+[ext_resource type="Script" uid="uid://5ef5ggycgd2n" path="res://Strategies/card_strategy.gd" id="2_y4a86"]
+[ext_resource type="Script" uid="uid://bu2dywnhjtkf1" path="res://Strategies/prerequisite_strategy.gd" id="3_7l5am"]
+[ext_resource type="Script" uid="uid://duyv4yweerhy7" path="res://Prerequisites/schedule_fits_prerequisite.gd" id="4_7l5am"]
+[ext_resource type="Script" uid="uid://d3rnbrfiewpix" path="res://Prerequisites/only_afternoon_prerequisite.gd" id="5_7l5am"]
+
+[sub_resource type="Resource" id="Resource_fho56"]
+script = ExtResource("4_7l5am")
+metadata/_custom_type_script = "uid://duyv4yweerhy7"
+
+[sub_resource type="Resource" id="Resource_4l6o6"]
+script = ExtResource("5_7l5am")
+metadata/_custom_type_script = "uid://d3rnbrfiewpix"
+
+[resource]
+script = ExtResource("2_y4a86")
+card_id = "BOUCLEMENT_COMPTES"
+deck = 1
+duration = 2
+productivity = 4
+play_prerequisites = Array[ExtResource("3_7l5am")]([SubResource("Resource_fho56"), SubResource("Resource_4l6o6")])
+image = ExtResource("2_vc6l7")
+metadata/_custom_type_script = "uid://5ef5ggycgd2n"

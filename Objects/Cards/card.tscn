@@ -1,0 +1,208 @@
+[gd_scene load_steps=8 format=3 uid="uid://b1e5d32da50r6"]
+
+[ext_resource type="Script" uid="uid://umaje7cbyyss" path="res://Objects/Cards/card.gd" id="1_mkclu"]
+[ext_resource type="Texture2D" uid="uid://8kvm42vkfxf0" path="res://Assets/card_front.png" id="2_2nflo"]
+[ext_resource type="Texture2D" uid="uid://qir8wgchtfw8" path="res://Assets/folder.png" id="2_kyjkt"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_2nflo"]
+size = Vector2(100, 163)
+
+[sub_resource type="Animation" id="Animation_kyjkt"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Node2D/Sprites/BackSprite:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(0.119, 0.166)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Node2D/Sprites/FrontSprites:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1, 1)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Texts:visible")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Node2D/Sprites/BackSprite:visible")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+
+[sub_resource type="Animation" id="Animation_2nflo"]
+resource_name = "flip"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Node2D/Sprites/BackSprite:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1),
+"transitions": PackedFloat32Array(2, 2),
+"update": 0,
+"values": [Vector2(0.119, 0.166), Vector2(0, 0.166)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Node2D/Sprites/FrontSprites:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0.06666667, 0.16666667),
+"transitions": PackedFloat32Array(2, 2),
+"update": 0,
+"values": [Vector2(0, 1), Vector2(1, 1)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Texts:visible")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.13333334, 0.16666667),
+"transitions": PackedFloat32Array(1, 2, 2),
+"update": 1,
+"values": [false, false, true]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Node2D/Sprites/BackSprite:visible")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_qwvyp"]
+_data = {
+&"RESET": SubResource("Animation_kyjkt"),
+&"flip": SubResource("Animation_2nflo")
+}
+
+[node name="Card" type="Node2D"]
+script = ExtResource("1_mkclu")
+
+[node name="Node2D" type="Node2D" parent="."]
+scale = Vector2(3, 3)
+
+[node name="Sprites" type="Node2D" parent="Node2D"]
+
+[node name="BackSprite" type="Sprite2D" parent="Node2D/Sprites"]
+visible = false
+position = Vector2(1.000005, -2.026558e-06)
+scale = Vector2(0.119, 0.166)
+texture = ExtResource("2_kyjkt")
+
+[node name="FrontSprites" type="Node2D" parent="Node2D/Sprites"]
+
+[node name="ImageRect" type="TextureRect" parent="Node2D/Sprites/FrontSprites"]
+offset_left = -43.0
+offset_top = -75.0
+offset_right = 49.0
+offset_bottom = 13.0
+stretch_mode = 3
+
+[node name="FrontSprite" type="Sprite2D" parent="Node2D/Sprites/FrontSprites"]
+texture = ExtResource("2_2nflo")
+
+[node name="Area2D" type="Area2D" parent="Node2D"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/Area2D"]
+position = Vector2(3, 1.5)
+shape = SubResource("RectangleShape2D_2nflo")
+
+[node name="Texts" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Title" type="RichTextLabel" parent="Texts"]
+layout_mode = 0
+offset_left = -85.0
+offset_top = 29.0
+offset_right = 103.0
+offset_bottom = 67.0
+theme_override_font_sizes/normal_font_size = 20
+text = "Test Tile"
+autowrap_mode = 0
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Description" type="RichTextLabel" parent="Texts"]
+layout_mode = 0
+offset_left = -109.0
+offset_top = 88.0
+offset_right = 129.0
+offset_bottom = 228.0
+theme_override_font_sizes/normal_font_size = 20
+text = "This is just a test description to see how it would like if we had text in this area. "
+
+[node name="Productivity" type="RichTextLabel" parent="Texts"]
+layout_mode = 0
+offset_left = -145.0
+offset_top = -239.0
+offset_right = -70.0
+offset_bottom = -175.0
+theme_override_font_sizes/normal_font_size = 44
+text = "0"
+fit_content = true
+scroll_active = false
+autowrap_mode = 0
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Duration" type="RichTextLabel" parent="Texts"]
+layout_mode = 0
+offset_left = -48.0
+offset_top = -229.0
+offset_right = 9.0
+offset_bottom = -195.0
+theme_override_font_sizes/normal_font_size = 24
+text = "0"
+fit_content = true
+scroll_active = false
+autowrap_mode = 0
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_qwvyp")
+}

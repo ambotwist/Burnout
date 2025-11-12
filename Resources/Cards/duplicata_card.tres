@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="CardStrategy" load_steps=11 format=3 uid="uid://cob6wgycd7jwx"]
+
+[ext_resource type="Script" uid="uid://c6hm0eda7f1ut" path="res://Strategies/effect_strategy.gd" id="1_jqnjo"]
+[ext_resource type="Script" uid="uid://5ef5ggycgd2n" path="res://Strategies/card_strategy.gd" id="2_3hutm"]
+[ext_resource type="Texture2D" uid="uid://c03pyurcauewf" path="res://Assets/CardIllustrations/illu_imprimante.en.panne.png" id="2_4ar06"]
+[ext_resource type="Script" uid="uid://bu2dywnhjtkf1" path="res://Strategies/prerequisite_strategy.gd" id="2_vwphh"]
+[ext_resource type="Script" uid="uid://duyv4yweerhy7" path="res://Prerequisites/schedule_fits_prerequisite.gd" id="4_6mobu"]
+[ext_resource type="Script" uid="uid://yo7wbudps5sl" path="res://Effects/card_copy_effect.gd" id="4_n7fs4"]
+[ext_resource type="Script" uid="uid://dgo1pop83o1e0" path="res://Strategies/target_strategy.gd" id="5_pjtjq"]
+
+[sub_resource type="Resource" id="Resource_vwphh"]
+script = ExtResource("5_pjtjq")
+target_card = -2
+target_pile = 1
+metadata/_custom_type_script = "uid://dgo1pop83o1e0"
+
+[sub_resource type="Resource" id="Resource_iadmb"]
+script = ExtResource("4_n7fs4")
+target_strategy = SubResource("Resource_vwphh")
+destination_pile = 2
+show_preview = true
+trigger = 2
+metadata/_custom_type_script = "uid://yo7wbudps5sl"
+
+[sub_resource type="Resource" id="Resource_kg6oy"]
+script = ExtResource("4_6mobu")
+metadata/_custom_type_script = "uid://duyv4yweerhy7"
+
+[resource]
+script = ExtResource("2_3hutm")
+card_id = "DUPLICATA"
+deck = 1
+duration = 1
+productivity = 1
+effects = Array[ExtResource("1_jqnjo")]([SubResource("Resource_iadmb")])
+play_prerequisites = Array[ExtResource("2_vwphh")]([SubResource("Resource_kg6oy")])
+image = ExtResource("2_4ar06")
+metadata/_custom_type_script = "uid://5ef5ggycgd2n"

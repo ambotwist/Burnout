@@ -1,0 +1,50 @@
+[gd_resource type="Resource" script_class="CardStrategy" load_steps=14 format=3 uid="uid://bp72y4idsunuq"]
+
+[ext_resource type="Script" uid="uid://5ef5ggycgd2n" path="res://Strategies/card_strategy.gd" id="1_fil87"]
+[ext_resource type="Script" uid="uid://c6hm0eda7f1ut" path="res://Strategies/effect_strategy.gd" id="1_xtla8"]
+[ext_resource type="Script" uid="uid://bu2dywnhjtkf1" path="res://Strategies/prerequisite_strategy.gd" id="2_aq0da"]
+[ext_resource type="Texture2D" uid="uid://bowhl317b3dha" path="res://Assets/CardIllustrations/illu_rapport.urgent.png" id="2_icncd"]
+[ext_resource type="Script" uid="uid://dgo1pop83o1e0" path="res://Strategies/target_strategy.gd" id="3_sy3kt"]
+[ext_resource type="Script" uid="uid://bqc86s7xitsdk" path="res://Prerequisites/played_after_card_prerequisite.gd" id="4_lph27"]
+[ext_resource type="Script" uid="uid://qcen0ybxgm2d" path="res://Effects/card_modifier_effect.gd" id="5_bex5m"]
+[ext_resource type="Script" uid="uid://duyv4yweerhy7" path="res://Prerequisites/schedule_fits_prerequisite.gd" id="8_loj7y"]
+
+[sub_resource type="Resource" id="Resource_aq0da"]
+script = ExtResource("3_sy3kt")
+target_deck = 1
+metadata/_custom_type_script = "uid://dgo1pop83o1e0"
+
+[sub_resource type="Resource" id="Resource_dxga0"]
+script = ExtResource("4_lph27")
+prerequisite_card = SubResource("Resource_aq0da")
+metadata/_custom_type_script = "uid://bqc86s7xitsdk"
+
+[sub_resource type="Resource" id="Resource_sy3kt"]
+script = ExtResource("3_sy3kt")
+target_card = -3
+target_deck = 1
+metadata/_custom_type_script = "uid://dgo1pop83o1e0"
+
+[sub_resource type="Resource" id="Resource_lph27"]
+script = ExtResource("5_bex5m")
+target_strategies = Array[ExtResource("3_sy3kt")]([SubResource("Resource_sy3kt")])
+target_property = 1
+modifier_value = 1
+trigger = 2
+prerequisites = Array[ExtResource("2_aq0da")]([SubResource("Resource_dxga0")])
+metadata/_custom_type_script = "uid://qcen0ybxgm2d"
+
+[sub_resource type="Resource" id="Resource_bex5m"]
+script = ExtResource("8_loj7y")
+metadata/_custom_type_script = "uid://duyv4yweerhy7"
+
+[resource]
+script = ExtResource("1_fil87")
+card_id = "FORMULAIRE_STANDARD"
+deck = 1
+duration = 2
+productivity = 2
+effects = Array[ExtResource("1_xtla8")]([SubResource("Resource_lph27")])
+play_prerequisites = Array[ExtResource("2_aq0da")]([SubResource("Resource_bex5m")])
+image = ExtResource("2_icncd")
+metadata/_custom_type_script = "uid://5ef5ggycgd2n"

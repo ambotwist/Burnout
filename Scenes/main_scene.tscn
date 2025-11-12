@@ -1,0 +1,110 @@
+[gd_scene load_steps=12 format=3 uid="uid://8v7wo0wgcmti"]
+
+[ext_resource type="PackedScene" uid="uid://c1n1saudmbrqw" path="res://Managers/card_manager.tscn" id="1_6l7je"]
+[ext_resource type="Script" uid="uid://be3cp3bdvnga7" path="res://Managers/game_manager.gd" id="1_jv6wh"]
+[ext_resource type="PackedScene" uid="uid://bbs4ntmed13nr" path="res://Objects/Piles/draw_pile.tscn" id="2_6l7je"]
+[ext_resource type="Texture2D" uid="uid://dmhme30ejb367" path="res://Assets/DirtyLand-Office.png" id="2_huasi"]
+[ext_resource type="Texture2D" uid="uid://co1sovh63h7fx" path="res://Assets/Booth.png" id="2_m1efj"]
+[ext_resource type="FontFile" uid="uid://cmddn8fk3noym" path="res://Assets/Tiny5/Tiny5-Regular.ttf" id="3_76v2p"]
+[ext_resource type="Texture2D" uid="uid://ca5qe52e0y1vk" path="res://Assets/sideboard.png" id="3_mai8y"]
+[ext_resource type="PackedScene" uid="uid://dcoshanu074o7" path="res://Objects/Piles/discard_pile.tscn" id="4_6ev3c"]
+[ext_resource type="Script" uid="uid://db8y1s5681q7w" path="res://Objects/Schedule/schedule.gd" id="4_m1efj"]
+[ext_resource type="PackedScene" uid="uid://bb1ug8b7w4fib" path="res://Objects/Piles/hand.tscn" id="4_x6ack"]
+[ext_resource type="Script" uid="uid://e0h2mgdmgdpx" path="res://Objects/Piles/discard_pile.gd" id="5_maf8m"]
+
+[node name="MainScene" type="Node2D"]
+
+[node name="GameManager" type="Node" parent="." node_paths=PackedStringArray("card_manager", "schedule", "productivity_label", "discard_pile")]
+script = ExtResource("1_jv6wh")
+card_manager = NodePath("../CardManager")
+schedule = NodePath("../Control/Schedule")
+productivity_label = NodePath("../Control/ProductivityLabel")
+discard_pile = NodePath("../CardManager/DiscardPile")
+
+[node name="DirtyLandOffice" type="Sprite2D" parent="."]
+modulate = Color(0.7750634, 0.7750634, 0.7750634, 1)
+position = Vector2(1439.5413, 246)
+scale = Vector2(0.8322152, 0.8322151)
+texture = ExtResource("2_huasi")
+region_enabled = true
+region_rect = Rect2(0, 0, 1920, 654.788)
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 2880.0
+offset_bottom = 1620.0
+mouse_filter = 2
+metadata/_edit_lock_ = true
+
+[node name="ProductivityLabel" type="RichTextLabel" parent="Control"]
+layout_mode = 0
+offset_left = 1547.0
+offset_top = 177.0
+offset_right = 1983.0
+offset_bottom = 245.0
+theme_override_fonts/normal_font = ExtResource("3_76v2p")
+theme_override_font_sizes/normal_font_size = 56
+text = "PRODUCTIVITY: 0"
+fit_content = true
+vertical_alignment = 1
+
+[node name="TextureRect" type="TextureRect" parent="Control"]
+modulate = Color(0.65012825, 0.6501283, 0.65012825, 1)
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_top = -826.0
+offset_right = 640.0
+offset_bottom = 794.0
+grow_vertical = 2
+texture = ExtResource("3_mai8y")
+expand_mode = 1
+metadata/_edit_lock_ = true
+
+[node name="TextureRect2" type="TextureRect" parent="Control"]
+modulate = Color(0.65012825, 0.6501283, 0.65012825, 1)
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 2252.0
+offset_top = -826.0
+offset_right = 2892.0
+offset_bottom = 794.0
+grow_vertical = 2
+texture = ExtResource("3_mai8y")
+expand_mode = 1
+metadata/_edit_lock_ = true
+
+[node name="Booth" type="Sprite2D" parent="Control"]
+position = Vector2(1441, 805)
+scale = Vector2(4.4887643, 3.7345514)
+texture = ExtResource("2_m1efj")
+
+[node name="Schedule" type="Control" parent="Control"]
+anchors_preset = 0
+offset_left = 699.0
+offset_top = 702.0
+offset_right = 2148.0
+offset_bottom = 1128.0
+script = ExtResource("4_m1efj")
+
+[node name="CardManager" parent="." instance=ExtResource("1_6l7je")]
+metadata/_edit_lock_ = true
+
+[node name="DrawPile" parent="CardManager" instance=ExtResource("2_6l7je")]
+position = Vector2(776.00006, 1127.0001)
+scale = Vector2(0.65, 0.65)
+cards_scale = 0.65
+
+[node name="Hand" parent="CardManager" instance=ExtResource("4_x6ack")]
+position = Vector2(1440, 1450)
+cards_scale = 0.85
+
+[node name="DiscardPile" parent="CardManager" instance=ExtResource("4_6ev3c")]
+position = Vector2(2122, 1111)
+scale = Vector2(0.4, 0.4)
+script = ExtResource("5_maf8m")
+cards_scale = 0.4

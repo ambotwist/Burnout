@@ -1,0 +1,19 @@
+keys,en,fr
+CARD_FORMULAIRE_STANDARD_TITLE,Sequential Filing,Classement séquentiel
+CARD_FORMULAIRE_STANDARD_DESC,+1 productivity if scheduled after an Admin task.,+1 productivité si planifiée après une tâche Admin.
+CARD_LECTURE_EMAIL_TITLE,Read Inbox,Lecture d’email
+CARD_LECTURE_EMAIL_DESC,+1 productivity if scheduled in the morning.,+1 de productivité si agendée le matin. 
+CARD_BOUCLEMENT_COMPTES_TITLE,Report Rush,Bouclement des comptes
+CARD_BOUCLEMENT_COMPTES_DESC,Can only be scheduled in the afternoon.,Ne peut être planifiée que l’après-midi.
+CARD_DUPLICATA_TITLE,Photocopy,Photocopie
+CARD_DUPLICATA_DESC,Creates a copy of a card in hand and ARCHIVES it.,"Crée une copie d’une carte en main, puis l’ARCHIVE."
+CARD_CLASSEMENT_PRIORITAIRE_TITLE,Folder Organization,Classement Prioritaire
+CARD_CLASSEMENT_PRIORITAIRE_DESC,"""ARCHIVES a card in hand. +1 FOCUS",ARCHIVE une carte en main. Réduit d’une case la prochaine carte Admin planifiée aujourd’hui.
+CARD_PREVISION_BUDGETAIRE_TITLE,Performance Forecast,Prévision budgétaire
+CARD_PREVISION_BUDGETAIRE_DESC,INSIGHT. The chosen card doubles its productivity.,INSIGHT. La carte pioché double sa prod de base.
+CARD_DOSSIER_PERSISTANT_TITLE,Legacy Record,Dossier persistant
+CARD_DOSSIER_PERSISTANT_DESC,+1 each time this card has been ARCHIVED this run. ,+ 1 Prod à chaque fois que la tâche a été défaussée précédemment pendant la run.
+CARD_CENTRE_ARCHIVE_TITLE,Record Keeper,Centre d’archive
+CARD_CENTRE_ARCHIVE_DESC,"While in hand, gain +1 productivity per ARCHIVE.",En main: Gagne +1 de productivité à chaque archive
+CARD_CONTROLE_QUALITE_TITLE,Admin Priority,
+CARD_CONTROLE_QUALITE_DESC,+2 productivity to the next drawn card if it’s an Admin card. ,"Si la prochaine tâche est de type Admin, la tâche gagne +2 de productivityé. "

@@ -1,0 +1,44 @@
+[gd_resource type="Resource" script_class="CardStrategy" load_steps=14 format=3 uid="uid://cuvq8blt5ja78"]
+
+[ext_resource type="Script" uid="uid://c6hm0eda7f1ut" path="res://Strategies/effect_strategy.gd" id="1_xh2pg"]
+[ext_resource type="Texture2D" uid="uid://smeq2p84v61f" path="res://Assets/CardIllustrations/illu_stockage.png" id="2_3lw4c"]
+[ext_resource type="Script" uid="uid://bu2dywnhjtkf1" path="res://Strategies/prerequisite_strategy.gd" id="2_jbwth"]
+[ext_resource type="Script" uid="uid://5ef5ggycgd2n" path="res://Strategies/card_strategy.gd" id="2_ybo6f"]
+[ext_resource type="Script" uid="uid://drw2tes1o7l3v" path="res://Prerequisites/only_morning_prerequisite.gd" id="3_cdqjv"]
+[ext_resource type="Script" uid="uid://dxcsdl1gil3w7" path="res://Strategies/card_prerequisite_strategy.gd" id="3_cmm8s"]
+[ext_resource type="Script" uid="uid://qcen0ybxgm2d" path="res://Effects/card_modifier_effect.gd" id="3_jbwth"]
+[ext_resource type="Script" uid="uid://duyv4yweerhy7" path="res://Prerequisites/schedule_fits_prerequisite.gd" id="4_8vcrt"]
+[ext_resource type="Script" uid="uid://dgo1pop83o1e0" path="res://Strategies/target_strategy.gd" id="4_cdqjv"]
+
+[sub_resource type="Resource" id="Resource_xs78o"]
+script = ExtResource("3_cdqjv")
+metadata/_custom_type_script = "uid://drw2tes1o7l3v"
+
+[sub_resource type="Resource" id="Resource_g6leo"]
+script = ExtResource("4_cdqjv")
+target_card = -3
+metadata/_custom_type_script = "uid://dgo1pop83o1e0"
+
+[sub_resource type="Resource" id="Resource_odfbf"]
+script = ExtResource("3_jbwth")
+target_strategies = Array[ExtResource("4_cdqjv")]([SubResource("Resource_g6leo")])
+target_property = 1
+modifier_value = 1
+trigger = 2
+prerequisites = Array[ExtResource("2_jbwth")]([SubResource("Resource_xs78o")])
+metadata/_custom_type_script = "uid://qcen0ybxgm2d"
+
+[sub_resource type="Resource" id="Resource_atg4a"]
+script = ExtResource("4_8vcrt")
+metadata/_custom_type_script = "uid://duyv4yweerhy7"
+
+[resource]
+script = ExtResource("2_ybo6f")
+card_id = "LECTURE_EMAIL"
+deck = 1
+duration = 1
+productivity = 1
+effects = Array[ExtResource("1_xh2pg")]([SubResource("Resource_odfbf")])
+play_prerequisites = Array[ExtResource("3_cmm8s")]([SubResource("Resource_atg4a")])
+image = ExtResource("2_3lw4c")
+metadata/_custom_type_script = "uid://5ef5ggycgd2n"

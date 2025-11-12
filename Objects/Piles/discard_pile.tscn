@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3 uid="uid://dcoshanu074o7"]
+
+[ext_resource type="Texture2D" uid="uid://mbyrylvt1svc" path="res://Assets/CardSlot.png" id="1_0wav3"]
+[ext_resource type="Texture2D" uid="uid://b2fd5mc1nn40k" path="res://Assets/card_back.png" id="2_u2n1x"]
+
+[node name="DiscardPile" type="Node2D"]
+
+[node name="Sprites" type="Node2D" parent="."]
+scale = Vector2(3, 3)
+
+[node name="EmptySlotSprite" type="Sprite2D" parent="Sprites"]
+scale = Vector2(0.833, 0.792)
+texture = ExtResource("1_0wav3")
+
+[node name="CardBackSprite" type="Sprite2D" parent="Sprites"]
+texture = ExtResource("2_u2n1x")
