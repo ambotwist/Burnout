@@ -1,11 +1,10 @@
-[gd_resource type="Resource" script_class="CardStrategy" load_steps=14 format=3 uid="uid://cuvq8blt5ja78"]
+[gd_resource type="Resource" script_class="CardStrategy" load_steps=13 format=3 uid="uid://cuvq8blt5ja78"]
 
 [ext_resource type="Script" uid="uid://c6hm0eda7f1ut" path="res://Strategies/effect_strategy.gd" id="1_xh2pg"]
 [ext_resource type="Texture2D" uid="uid://smeq2p84v61f" path="res://Assets/CardIllustrations/illu_stockage.png" id="2_3lw4c"]
 [ext_resource type="Script" uid="uid://bu2dywnhjtkf1" path="res://Strategies/prerequisite_strategy.gd" id="2_jbwth"]
 [ext_resource type="Script" uid="uid://5ef5ggycgd2n" path="res://Strategies/card_strategy.gd" id="2_ybo6f"]
 [ext_resource type="Script" uid="uid://drw2tes1o7l3v" path="res://Prerequisites/only_morning_prerequisite.gd" id="3_cdqjv"]
-[ext_resource type="Script" uid="uid://dxcsdl1gil3w7" path="res://Strategies/card_prerequisite_strategy.gd" id="3_cmm8s"]
 [ext_resource type="Script" uid="uid://qcen0ybxgm2d" path="res://Effects/card_modifier_effect.gd" id="3_jbwth"]
 [ext_resource type="Script" uid="uid://duyv4yweerhy7" path="res://Prerequisites/schedule_fits_prerequisite.gd" id="4_8vcrt"]
 [ext_resource type="Script" uid="uid://dgo1pop83o1e0" path="res://Strategies/target_strategy.gd" id="4_cdqjv"]
@@ -39,6 +38,6 @@ deck = 1
 duration = 1
 productivity = 1
 effects = Array[ExtResource("1_xh2pg")]([SubResource("Resource_odfbf")])
-play_prerequisites = Array[ExtResource("3_cmm8s")]([SubResource("Resource_atg4a")])
+play_prerequisites = Array[ExtResource("2_jbwth")]([SubResource("Resource_atg4a")])
 image = ExtResource("2_3lw4c")
 metadata/_custom_type_script = "uid://5ef5ggycgd2n"
