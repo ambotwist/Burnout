@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Burnout"
-run/main_scene="uid://8v7wo0wgcmti"
+run/main_scene="uid://coa8b8a3ja2e1"
 config/features=PackedStringArray("4.5", "Mobile")
 config/icon="res://icon.svg"
 
@@ -20,6 +20,7 @@ config/icon="res://icon.svg"
 InputManager="*res://Managers/input_manager.tscn"
 GameEnums="*res://Utils/game_enums.gd"
 Events="*res://Utils/events.gd"
+DeckData="*res://Utils/deck_data.gd"
 
 [display]
 

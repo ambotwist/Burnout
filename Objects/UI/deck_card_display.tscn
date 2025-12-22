@@ -1,0 +1,37 @@
+[gd_scene load_steps=2 format=3 uid="uid://yjtaiakbg1bs"]
+
+[ext_resource type="Script" uid="uid://cs4k4fljpgkqw" path="res://Objects/UI/deck_card_display.gd" id="1_script"]
+
+[node name="DeckCardDisplay" type="VBoxContainer"]
+theme_override_constants/separation = 20
+script = ExtResource("1_script")
+
+[node name="CardContainer" type="Control" parent="."]
+custom_minimum_size = Vector2(300, 489)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ButtonContainer" type="HBoxContainer" parent="."]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+size_flags_vertical = 3
+alignment = 1
+
+[node name="MinusButton" type="Button" parent="ButtonContainer"]
+custom_minimum_size = Vector2(60, 50)
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "-"
+
+[node name="CountLabel" type="Label" parent="ButtonContainer"]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "x0"
+horizontal_alignment = 1
+
+[node name="PlusButton" type="Button" parent="ButtonContainer"]
+custom_minimum_size = Vector2(60, 50)
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "+"

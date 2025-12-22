@@ -30,14 +30,22 @@ func _ready() -> void:
 
 
 func initialize_game() -> void:
-	# Load all card strategies from Resources/Cards
-	var card_strategies = load_all_card_strategies()
+	# Use deck from DeckData if available, otherwise load all cards
+	var card_strategies: Array[CardStrategy]
+
+	if DeckData.selected_deck.size() > 0:
+		card_strategies = DeckData.selected_deck.duplicate()
+		DeckData.selected_deck.clear()  # Reset for next run
+	else:
+		card_strategies = load_all_card_strategies()
 
 	for strategy in card_strategies:
 		var card_data = CardData.create_card_data_from_strategy(strategy)
 		card_data.game_id = card_id_counter
 		card_id_counter += 1
 		card_manager.draw_pile.add_card(card_data)
+	
+	card_manager.draw_pile.shuffle()
 
 	await get_tree().create_timer(1.0).timeout
 	for i in range(10):
