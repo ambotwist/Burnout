@@ -61,6 +61,8 @@ func initialize_game() -> void:
 	# Wait one frame to ensure Hand._ready() has connected to the signal
 	await get_tree().process_frame
 
+	# Wait for half a second to ensure all cards are in hand
+	await get_tree().create_timer(0.5).timeout
 	InputManager.interactions_enabled = true # Enable interactions again
 
 	# Initialize card displays after initial draw
