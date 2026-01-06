@@ -49,6 +49,8 @@ func initialize_game() -> void:
 	
 	card_manager.draw_pile.shuffle()
 
+	InputManager.interactions_enabled = false # Disable interactions while drawing cards
+
 	await get_tree().create_timer(1.0).timeout
 	for i in range(3):
 		if card_manager.draw_pile.is_empty():
@@ -58,6 +60,8 @@ func initialize_game() -> void:
 
 	# Wait one frame to ensure Hand._ready() has connected to the signal
 	await get_tree().process_frame
+
+	InputManager.interactions_enabled = true # Enable interactions again
 
 	# Initialize card displays after initial draw
 	Events.game_state_changed.emit(_build_game_state())

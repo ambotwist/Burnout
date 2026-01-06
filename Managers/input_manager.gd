@@ -7,9 +7,13 @@ signal dehovered_from_object(object)
 
 var hovered_object = null
 var hover_grace_period: float = 0.0
+var interactions_enabled: bool = true
 const HOVER_GRACE_TIME: float = 0.1
 
 func _input(event: InputEvent) -> void:
+	if not interactions_enabled:
+		return
+
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
 			left_mouse_button_pressed.emit(raycast())
@@ -18,6 +22,13 @@ func _input(event: InputEvent) -> void:
 
 
 func _process(delta: float) -> void:
+	if not interactions_enabled:
+		#Clear any existing hover state when disabled
+		if hovered_object:
+			dehovered_from_object.emit(hovered_object)
+			hovered_object = null
+		return
+
 	# Decrease grace period timer
 	if hover_grace_period > 0:
 		hover_grace_period -= delta
