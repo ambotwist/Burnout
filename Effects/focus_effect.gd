@@ -6,10 +6,15 @@ extends EffectStrategy
 ## - No reduction for cards with duration = 1 (already at minimum)
 ## - Applies to any card that STARTS within the focus window
 
+@export var focus_duration: float = 1.0
+
 func apply_effect(context: GameContext) -> void:
 	# Set the focus window: 2 hours from current time
 	context.focus_start_time = context.current_time
-	context.focus_end_time = context.current_time + 2.0
+	
+	# Round focus duration to the nearest 0.5 hours
+	var rounded_focus_duration = round(focus_duration * 2) / 2.0
+	context.focus_end_time = context.current_time + rounded_focus_duration
 
 	# Clamp to end of day (16:00)
 	if context.schedule:
