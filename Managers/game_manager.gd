@@ -48,7 +48,7 @@ func initialize_game() -> void:
 	card_manager.draw_pile.shuffle()
 
 	await get_tree().create_timer(1.0).timeout
-	for i in range(10):
+	for i in range(3):
 		if card_manager.draw_pile.is_empty():
 			break
 		card_manager.draw_card()
@@ -161,6 +161,10 @@ func on_card_released(card: Card) -> void:
 
 		# NOW update previous_card after all effects have triggered
 		previous_card = card.card_data
+
+		# Draw a new card (after half a second delay)
+		await get_tree().create_timer(0.5).timeout
+		card_manager.draw_card()
 
 		# Notify that game state changed (previous_card updated)
 		Events.game_state_changed.emit(_build_game_state())
