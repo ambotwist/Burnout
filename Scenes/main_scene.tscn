@@ -1,8 +1,9 @@
-[gd_scene load_steps=12 format=3 uid="uid://8v7wo0wgcmti"]
+[gd_scene load_steps=13 format=3 uid="uid://8v7wo0wgcmti"]
 
 [ext_resource type="PackedScene" uid="uid://c1n1saudmbrqw" path="res://Managers/card_manager.tscn" id="1_6l7je"]
 [ext_resource type="Script" uid="uid://be3cp3bdvnga7" path="res://Managers/game_manager.gd" id="1_jv6wh"]
 [ext_resource type="PackedScene" uid="uid://bbs4ntmed13nr" path="res://Objects/Piles/draw_pile.tscn" id="2_6l7je"]
+[ext_resource type="PackedScene" uid="uid://ffjfceh2d7x7" path="res://Objects/UI/floating_text.tscn" id="2_drdnd"]
 [ext_resource type="Texture2D" uid="uid://dmhme30ejb367" path="res://Assets/DirtyLand-Office.png" id="2_huasi"]
 [ext_resource type="Texture2D" uid="uid://co1sovh63h7fx" path="res://Assets/Booth.png" id="2_m1efj"]
 [ext_resource type="FontFile" uid="uid://cmddn8fk3noym" path="res://Assets/Tiny5/Tiny5-Regular.ttf" id="3_76v2p"]
@@ -14,12 +15,14 @@
 
 [node name="MainScene" type="Node2D"]
 
-[node name="GameManager" type="Node" parent="." node_paths=PackedStringArray("card_manager", "schedule", "productivity_label", "discard_pile")]
+[node name="GameManager" type="Node" parent="." node_paths=PackedStringArray("card_manager", "schedule", "productivity_label", "discard_pile", "floating_text_spawn_point")]
 script = ExtResource("1_jv6wh")
 card_manager = NodePath("../CardManager")
 schedule = NodePath("../Control/Schedule")
 productivity_label = NodePath("../Control/ProductivityLabel")
 discard_pile = NodePath("../CardManager/DiscardPile")
+floating_text_scene = ExtResource("2_drdnd")
+floating_text_spawn_point = NodePath("../Control/Marker2D")
 
 [node name="DirtyLandOffice" type="Sprite2D" parent="."]
 modulate = Color(0.7750634, 0.7750634, 0.7750634, 1)
@@ -90,6 +93,9 @@ offset_top = 702.0
 offset_right = 2148.0
 offset_bottom = 1128.0
 script = ExtResource("4_m1efj")
+
+[node name="Marker2D" type="Marker2D" parent="Control"]
+position = Vector2(1440, 469)
 
 [node name="CardManager" parent="." instance=ExtResource("1_6l7je")]
 metadata/_edit_lock_ = true

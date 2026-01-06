@@ -6,6 +6,8 @@ extends Node
 @export var schedule: Control
 @export var productivity_label: RichTextLabel
 @export var discard_pile: Pile
+@export var floating_text_scene: PackedScene
+@export var floating_text_spawn_point: Marker2D
 
 # Logic variables
 var card_id_counter: int = 0
@@ -158,6 +160,12 @@ func on_card_released(card: Card) -> void:
 		# Add card's final productivity to total
 		total_productivity += card.card_data.productivity
 		update_productivity_label()
+
+		# Spawn floating text showing productivity gained
+		if floating_text_scene and floating_text_spawn_point:
+			var floating_text = floating_text_scene.instantiate()
+			get_tree().current_scene.add_child(floating_text)
+			floating_text.setup(card.card_data.productivity, floating_text_spawn_point.global_position)
 
 		# NOW update previous_card after all effects have triggered
 		previous_card = card.card_data
