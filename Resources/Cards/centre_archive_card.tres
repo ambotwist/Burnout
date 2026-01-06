@@ -16,6 +16,7 @@ card_id = "CENTRE_ARCHIVE"
 deck = 1
 duration = 2
 productivity = 1
+sanity_toll = 1
 play_prerequisites = Array[ExtResource("3_ax3ur")]([SubResource("Resource_0rf1c")])
 image = ExtResource("2_355r6")
 metadata/_custom_type_script = "uid://5ef5ggycgd2n"

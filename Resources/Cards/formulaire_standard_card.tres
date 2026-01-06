@@ -44,6 +44,7 @@ card_id = "FORMULAIRE_STANDARD"
 deck = 1
 duration = 2
 productivity = 2
+sanity_toll = 1
 effects = Array[ExtResource("1_xtla8")]([SubResource("Resource_lph27")])
 play_prerequisites = Array[ExtResource("2_aq0da")]([SubResource("Resource_bex5m")])
 image = ExtResource("2_icncd")

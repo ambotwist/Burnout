@@ -24,7 +24,6 @@ metadata/_custom_type_script = "uid://28u70toeofnt"
 
 [sub_resource type="Resource" id="Resource_4qos8"]
 script = ExtResource("5_p3vnr")
-game_manager_path = NodePath("GameManager")
 trigger = 2
 metadata/_custom_type_script = "uid://81kvs73anoyi"
 
@@ -38,6 +37,7 @@ card_id = "CLASSEMENT_PRIORITAIRE"
 deck = 1
 duration = 2
 productivity = 2
+sanity_toll = 1
 effects = Array[ExtResource("1_8pu30")]([SubResource("Resource_w1qqm"), SubResource("Resource_4qos8")])
 play_prerequisites = Array[ExtResource("3_kcav5")]([SubResource("Resource_sqjhr")])
 image = ExtResource("2_p61kd")

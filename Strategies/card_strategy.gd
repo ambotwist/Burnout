@@ -6,6 +6,7 @@ extends Resource
 @export var deck: GameEnums.DeckType
 @export var duration: int
 @export var productivity: int
+@export var sanity_toll: int
 @export var effects: Array[EffectStrategy]
 @export var play_prerequisites: Array[PrerequisiteStrategy]
 @export var image: Texture2D

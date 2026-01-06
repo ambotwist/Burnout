@@ -8,6 +8,7 @@ static var card_height: int
 @onready var image_rect = $Node2D/Sprites/FrontSprites/ImageRect
 @onready var title_label = $Texts/Title
 @onready var description_label = $Texts/Description
+@onready var sanity_toll_label = $Texts/SanityToll
 @onready var productivity_label = $Texts/Productivity
 @onready var duration_label = $Texts/Duration
 @onready var collision_shape = $Node2D/Area2D/CollisionShape2D
@@ -30,6 +31,7 @@ func apply_card_data() -> void:
 	description_label.text = card_data.strategy.get_description()
 	productivity_label.text = str(card_data.productivity)
 	duration_label.text = format_duration(card_data.duration)
+	sanity_toll_label.text = str(card_data.strategy.sanity_toll)
 
 
 func format_duration(duration_slots: int) -> String:
