@@ -40,6 +40,11 @@ func create_card(card_data: CardData, pile_scale: float) -> Card:
 ### DRAW PILE FUNCTIONS ###
 
 func draw_card() -> void:
+
+	if hand.is_full():
+		print("Cannot draw card - hand is full")
+		return
+
 	var card_data = draw_pile.remove_top_card()
 	if card_data == null:
 		print("No cards to draw!")

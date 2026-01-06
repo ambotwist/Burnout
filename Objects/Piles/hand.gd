@@ -3,11 +3,15 @@ extends Pile
 
 var card_positions: Dictionary = {}
 
+@export var max_cards: int = 3
 func _ready() -> void:
 	super._ready()
 
 	# Connect to game state change signal to update card displays
 	Events.game_state_changed.connect(_on_game_state_changed)
+
+func is_full() -> bool:
+	return cards.size() >= max_cards
 
 
 func calculate_card_position(card: Card) -> Vector2:
