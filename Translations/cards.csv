@@ -12,7 +12,7 @@ CARD_CLASSEMENT_PRIORITAIRE_DESC,"""ARCHIVES a card in hand. +1 FOCUS",ARCHIVE u
 CARD_PREVISION_BUDGETAIRE_TITLE,Performance Forecast,Prévision budgétaire
 CARD_PREVISION_BUDGETAIRE_DESC,INSIGHT. The chosen card doubles its productivity.,INSIGHT. La carte pioché double sa prod de base.
 CARD_DOSSIER_PERSISTANT_TITLE,Legacy Record,Dossier persistant
-CARD_DOSSIER_PERSISTANT_DESC,+1 each time this card has been ARCHIVED this run. ,+ 1 Prod à chaque fois que la tâche a été défaussée précédemment pendant la run.
+CARD_DOSSIER_PERSISTANT_DESC,+1 to each card that has been ARCHIVED during the run.,Ajoute 1 productivité de base permanente à chaque carte ARCHIVEE précédemment pendant la run.
 CARD_CENTRE_ARCHIVE_TITLE,Record Keeper,Centre d’archive
 CARD_CENTRE_ARCHIVE_DESC,"While in hand, gain +1 productivity per ARCHIVE.",En main: Gagne +1 de productivité à chaque archive
 CARD_CONTROLE_QUALITE_TITLE,Admin Priority,

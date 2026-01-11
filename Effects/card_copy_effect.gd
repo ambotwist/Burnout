@@ -28,6 +28,10 @@ extends EffectStrategy
 ## Animation duration (seconds)
 @export var animation_duration: float = 0.3
 
+## If true and destination is DISCARD, archives the copy instead of just discarding
+## (generates productivity immediately and tracks as archived for future bonuses)
+@export var archive_copy: bool = false
+
 func apply_effect(context: GameContext) -> void:
 	if not target_strategy:
 		push_error("CardCopyEffect: target_strategy is not set")
@@ -52,11 +56,15 @@ func _build_command_chain(target: CardData, context: GameContext) -> void:
 	# IMPORTANT: Create a shared data dictionary that ALL commands in the chain will use
 	var chain_shared_data: Dictionary = {}
 
-	# Final command: Add to destination pile
-	var add_to_pile_cmd = AddCardToPileCommand.new(destination_pile)
-	add_to_pile_cmd.shared_data = chain_shared_data
+	# Final command: Add to destination pile (or archive if archive_copy is enabled)
+	var final_command: GameCommand
+	if archive_copy and destination_pile == GameEnums.PileType.DISCARD:
+		final_command = ArchiveCardCommand.new()
+	else:
+		final_command = AddCardToPileCommand.new(destination_pile)
+	final_command.shared_data = chain_shared_data
 
-	var current_command = add_to_pile_cmd
+	var current_command = final_command
 
 	# If animating, add animation command before adding to pile
 	if animate_to_pile and show_preview:

@@ -14,6 +14,7 @@ var card_id_counter: int = 0
 var card_is_over_schedule: bool = false
 var scheduled_cards: Array[CardData] = []
 var previous_card: CardData = null
+var archived_cards: Array[CardData] = []
 var total_productivity: int = 0
 
 # Focus window tracking
@@ -210,6 +211,7 @@ func can_play_card(card: Card) -> bool:
 		"time_left": schedule.time_left if schedule else 0,
 		"scheduled_cards": scheduled_cards,
 		"previous_card": previous_card,
+		"archived_cards": archived_cards,
 		"focus_start_time": focus_start_time,
 		"focus_end_time": focus_end_time
 	}
@@ -252,6 +254,7 @@ func trigger_card_effects(card: Card, trigger: GameEnums.EffectTrigger) -> void:
 		"time_left": schedule.time_left if schedule else 0,
 		"scheduled_cards": scheduled_cards,
 		"previous_card": previous_card,
+		"archived_cards": archived_cards,
 		"focus_start_time": focus_start_time,
 		"focus_end_time": focus_end_time
 	}
@@ -332,6 +335,7 @@ func _build_game_state() -> Dictionary:
 		"time_left": schedule.time_left if schedule else 0,
 		"scheduled_cards": scheduled_cards,
 		"previous_card": previous_card,
+		"archived_cards": archived_cards,
 		"focus_start_time": focus_start_time,
 		"focus_end_time": focus_end_time
 	}

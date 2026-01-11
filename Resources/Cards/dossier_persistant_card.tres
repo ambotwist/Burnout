@@ -1,14 +1,20 @@
-[gd_resource type="Resource" script_class="CardStrategy" load_steps=7 format=3 uid="uid://ds2tv4pdt7c4u"]
+[gd_resource type="Resource" script_class="CardStrategy" load_steps=8 format=3 uid="uid://ds2tv4pdt7c4u"]
 
 [ext_resource type="Script" uid="uid://c6hm0eda7f1ut" path="res://Strategies/effect_strategy.gd" id="1_7cnwu"]
 [ext_resource type="Script" uid="uid://5ef5ggycgd2n" path="res://Strategies/card_strategy.gd" id="2_hrs66"]
 [ext_resource type="Texture2D" uid="uid://ckcuhp7llc0d3" path="res://Assets/CardIllustrations/illu_depart.express.png" id="2_ms4fq"]
 [ext_resource type="Script" uid="uid://bu2dywnhjtkf1" path="res://Strategies/prerequisite_strategy.gd" id="3_l6aym"]
 [ext_resource type="Script" uid="uid://duyv4yweerhy7" path="res://Prerequisites/schedule_fits_prerequisite.gd" id="4_h6rv3"]
+[ext_resource type="Script" path="res://Effects/archive_bonus_effect.gd" id="5_archive_bonus"]
 
 [sub_resource type="Resource" id="Resource_23n12"]
 script = ExtResource("4_h6rv3")
 metadata/_custom_type_script = "uid://duyv4yweerhy7"
+
+[sub_resource type="Resource" id="Resource_archive_bonus"]
+script = ExtResource("5_archive_bonus")
+productivity_bonus = 1
+trigger = 2
 
 [resource]
 script = ExtResource("2_hrs66")
@@ -16,6 +22,7 @@ card_id = "DOSSIER_PERSISTANT"
 deck = 1
 duration = 3
 sanity_toll = 1
+effects = Array[ExtResource("1_7cnwu")]([SubResource("Resource_archive_bonus")])
 play_prerequisites = Array[ExtResource("3_l6aym")]([SubResource("Resource_23n12")])
 image = ExtResource("2_ms4fq")
 metadata/_custom_type_script = "uid://5ef5ggycgd2n"

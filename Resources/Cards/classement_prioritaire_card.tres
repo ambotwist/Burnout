@@ -4,7 +4,7 @@
 [ext_resource type="Script" uid="uid://5ef5ggycgd2n" path="res://Strategies/card_strategy.gd" id="2_jqrmi"]
 [ext_resource type="Texture2D" uid="uid://08dcucalpwqb" path="res://Assets/CardIllustrations/illu_tri.dossiers.png" id="2_p61kd"]
 [ext_resource type="Script" uid="uid://bu2dywnhjtkf1" path="res://Strategies/prerequisite_strategy.gd" id="3_kcav5"]
-[ext_resource type="Script" uid="uid://28u70toeofnt" path="res://Effects/card_discard_effect.gd" id="3_sqjhr"]
+[ext_resource type="Script" path="res://Effects/archive_effect.gd" id="3_sqjhr"]
 [ext_resource type="Script" uid="uid://dgo1pop83o1e0" path="res://Strategies/target_strategy.gd" id="4_p3vnr"]
 [ext_resource type="Script" uid="uid://duyv4yweerhy7" path="res://Prerequisites/schedule_fits_prerequisite.gd" id="4_vgaqb"]
 [ext_resource type="Script" uid="uid://81kvs73anoyi" path="res://Effects/focus_effect.gd" id="5_p3vnr"]
@@ -20,7 +20,6 @@ script = ExtResource("3_sqjhr")
 target_strategy = SubResource("Resource_e44ow")
 show_preview = true
 trigger = 2
-metadata/_custom_type_script = "uid://28u70toeofnt"
 
 [sub_resource type="Resource" id="Resource_4qos8"]
 script = ExtResource("5_p3vnr")

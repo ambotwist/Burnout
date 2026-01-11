@@ -46,6 +46,9 @@ var scheduled_cards: Array[CardData] = []
 ## Previous card played (CardData) - useful for "if played after X" effects
 var previous_card: CardData = null
 
+## Cards that have been archived this game (for DOSSIER_PERSISTANT bonus)
+var archived_cards: Array[CardData] = []
+
 # ========================================
 # FOCUS WINDOW
 # ========================================
@@ -167,6 +170,7 @@ static func create_for_card(card_node: Card, game_state: Dictionary = {}) -> Gam
 	context.time_left = game_state.get("time_left", 0)
 	context.scheduled_cards = game_state.get("scheduled_cards", [])
 	context.previous_card = game_state.get("previous_card")
+	context.archived_cards = game_state.get("archived_cards", [])
 	context.focus_start_time = game_state.get("focus_start_time", -1.0)
 	context.focus_end_time = game_state.get("focus_end_time", -1.0)
 

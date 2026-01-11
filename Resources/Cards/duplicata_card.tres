@@ -19,6 +19,7 @@ script = ExtResource("4_n7fs4")
 target_strategy = SubResource("Resource_vwphh")
 destination_pile = 2
 show_preview = true
+archive_copy = true
 trigger = 2
 metadata/_custom_type_script = "uid://yo7wbudps5sl"
 

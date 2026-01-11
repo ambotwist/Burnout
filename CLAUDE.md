@@ -62,7 +62,7 @@ Emitted when: card played, commands executed, focus window changes, initial draw
 - **CardCopyEffect**: Copies cards between piles with optional preview/animation
 - **CardDiscardEffect**: Discards cards with optional preview (animates actual card, not copy)
 - **FocusEffect**: Creates 2-hour window where played cards get -1 duration (15 min saved)
-- **DrawCardsEffect**: Draws cards from draw pile (not yet implemented)
+- **PlanningEffect**: Draw N cards, player selects M, applies optional modifiers, rest shuffled back
 
 ---
 
@@ -79,7 +79,42 @@ Hand receives game_state_changed signal
 → Card displays with color coding (green=buff, red=debuff, white=unchanged)
 ```
 
-**Key**: Simulation creates temporary GameContext, checks prerequisites, applies modifiers to temp values (no side effects)
+**Key**: Simulation starts from current `card_data` values (which may have modifiers from planning effect), then applies additional effects. Compares against `strategy` base values for color coding.
+
+---
+
+## Card Selection System (`Objects/UI/card_selection_ui.gd`)
+
+**Purpose**: Reusable UI for player card selection (used by PlanningEffect, reusable for Scry, Mulligan, Tutor)
+
+**Components**:
+- **CardSelectionUI**: Node2D scene with dimmed background, displays cards horizontally, handles click selection
+- **Selection Commands**: Modular command chain for draw → animate → wait → process selection
+
+**Command Chain** (PlanningEffect):
+```
+DrawCardsToSelectionCommand → AnimateCardsToSelectionCommand → WaitForSelectionCommand
+  → ReturnCardsToDrawPileCommand → ModifySelectedCardsCommand (optional) → AddSelectedCardsToPileCommand
+  → CleanupSelectionUICommand
+```
+
+**Key Design**:
+- CardSelectionUI handles its own input via `_input()` (independent of InputManager.interactions_enabled)
+- Commands share data via `shared_data` dictionary: `selection_ui`, `drawn_cards`, `selected_cards`, `unselected_cards`
+- `trigger_card_effects()` is async - awaits command execution for player interaction
+- Selected cards can go to HAND or SCHEDULE (configurable)
+
+**PlanningEffect Properties**:
+```gdscript
+cards_to_draw: int = 3
+cards_to_select: int = 1
+shuffle_remainder: bool = true
+destination: GameEnums.PileType = HAND
+selected_card_productivity_modifier: int = 0  # Optional buff/debuff
+selected_card_duration_modifier: int = 0
+```
+
+**Example**: PREVISION_BUDGETAIRE uses PlanningEffect with `selected_card_productivity_modifier = 1`
 
 ---
 
@@ -110,11 +145,14 @@ Hand receives game_state_changed signal
 ## Card Play Flow
 
 1. `on_card_released()` → Check `play_prerequisites` (fail → return to hand)
-2. Trigger `BEFORE_PLAY` effects → Apply focus reduction
-3. Place in schedule (update time, add to `scheduled_cards`)
-4. Trigger `ON_PLAY` effects (check `effect.prerequisites`)
-5. Execute command queue → Update productivity → Set `previous_card`
-6. **Emit `Events.game_state_changed`** → Hand updates card displays
+2. Save `card_data` reference (card node will be freed later)
+3. **Await** `BEFORE_PLAY` effects → Apply focus reduction
+4. Place in schedule (update time, add to `scheduled_cards`, free card node)
+5. **Await** `ON_PLAY` effects (check `effect.prerequisites`) - async for player interaction
+6. Execute command queue → Update productivity → Set `previous_card`
+7. Draw new card → **Emit `Events.game_state_changed`** → Hand updates card displays
+
+**Note**: `trigger_card_effects()` is async to support effects requiring player input (e.g., PlanningEffect)
 
 ---
 
@@ -134,5 +172,7 @@ Hand receives game_state_changed signal
 **Key Files**:
 - `Utils/`: events, game_enums (autoload), effect_simulator, game_context, game_command
 - `Strategies/`: card_strategy, card_data, effect_strategy, target_strategy, prerequisite_strategy
-- `Effects/`: card_modifier_effect, card_copy_effect, card_discard_effect
+- `Effects/`: card_modifier_effect, card_copy_effect, card_discard_effect, planning_effect
 - `Commands/`: copy_card, create_card_visual, find_card_node, remove_card_from_pile, reparent_card, wait, animate_card, add_card_to_pile
+- `Commands/` (Selection): draw_cards_to_selection, animate_cards_to_selection, wait_for_selection, return_cards_to_draw_pile, modify_selected_cards, add_selected_cards_to_pile, cleanup_selection_ui
+- `Objects/UI/`: card_selection_ui (scene + script)
