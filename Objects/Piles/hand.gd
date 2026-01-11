@@ -65,8 +65,6 @@ func _on_game_state_changed(game_state: Dictionary) -> void:
 		# Simulate what values the card would have if played now
 		var simulated = EffectSimulator.simulate_card_play(card.card_data, game_state)
 
-		print("  [Hand] Updating ", card.card_data.strategy.card_id, ": base=", base_productivity, ", card_data=", card.card_data.productivity, ", simulated=", simulated.productivity)
-
 		# Update the card's display with color coding
 		card.update_display_with_preview(
 			base_productivity,

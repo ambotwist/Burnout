@@ -100,12 +100,9 @@ func _on_card_archived(_archived_card: CardData) -> void:
 	if not card_data:
 		return
 
-	print("  -> Card in hand received archive event: ", card_data.strategy.card_id)
-
 	# Check for ON_ARCHIVE effects and apply them
 	for effect in card_data.effects:
 		if effect and effect.trigger == GameEnums.EffectTrigger.ON_ARCHIVE:
-			print("  -> Found ON_ARCHIVE effect on: ", card_data.strategy.card_id)
 			# Create a minimal context for the effect
 			var context = GameContext.new()
 			context.self_card = card_data

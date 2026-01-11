@@ -1,14 +1,42 @@
-[gd_resource type="Resource" script_class="CardStrategy" load_steps=7 format=3 uid="uid://bpblc3iyn6dge"]
+[gd_resource type="Resource" script_class="CardStrategy" load_steps=12 format=3 uid="uid://bpblc3iyn6dge"]
 
 [ext_resource type="Script" uid="uid://c6hm0eda7f1ut" path="res://Strategies/effect_strategy.gd" id="1_m4sa2"]
 [ext_resource type="Texture2D" uid="uid://yo15gfigqtmj" path="res://Assets/CardIllustrations/illu_mirage.png" id="2_5j00b"]
 [ext_resource type="Script" uid="uid://5ef5ggycgd2n" path="res://Strategies/card_strategy.gd" id="2_iaohq"]
 [ext_resource type="Script" uid="uid://bu2dywnhjtkf1" path="res://Strategies/prerequisite_strategy.gd" id="3_twqac"]
 [ext_resource type="Script" uid="uid://duyv4yweerhy7" path="res://Prerequisites/schedule_fits_prerequisite.gd" id="4_5y3yy"]
+[ext_resource type="Script" uid="uid://dgo1pop83o1e0" path="res://Strategies/target_strategy.gd" id="5_tgt01"]
+[ext_resource type="Script" uid="uid://bqc86s7xitsdk" path="res://Prerequisites/played_after_card_prerequisite.gd" id="6_paf01"]
+[ext_resource type="Script" uid="uid://qcen0ybxgm2d" path="res://Effects/card_modifier_effect.gd" id="7_cme01"]
 
 [sub_resource type="Resource" id="Resource_nhg3e"]
 script = ExtResource("4_5y3yy")
 metadata/_custom_type_script = "uid://duyv4yweerhy7"
+
+[sub_resource type="Resource" id="Resource_prereq_target"]
+script = ExtResource("5_tgt01")
+target_deck = 1
+metadata/_custom_type_script = "uid://dgo1pop83o1e0"
+
+[sub_resource type="Resource" id="Resource_played_after"]
+script = ExtResource("6_paf01")
+prerequisite_card = SubResource("Resource_prereq_target")
+metadata/_custom_type_script = "uid://bqc86s7xitsdk"
+
+[sub_resource type="Resource" id="Resource_effect_target"]
+script = ExtResource("5_tgt01")
+target_card = -3
+target_deck = 1
+metadata/_custom_type_script = "uid://dgo1pop83o1e0"
+
+[sub_resource type="Resource" id="Resource_modifier_effect"]
+script = ExtResource("7_cme01")
+target_strategies = Array[ExtResource("5_tgt01")]([SubResource("Resource_effect_target")])
+target_property = 1
+modifier_value = 2
+trigger = 2
+prerequisites = Array[ExtResource("3_twqac")]([SubResource("Resource_played_after")])
+metadata/_custom_type_script = "uid://qcen0ybxgm2d"
 
 [resource]
 script = ExtResource("2_iaohq")
@@ -17,6 +45,7 @@ deck = 1
 duration = 2
 productivity = 3
 sanity_toll = 2
+effects = Array[ExtResource("1_m4sa2")]([SubResource("Resource_modifier_effect")])
 play_prerequisites = Array[ExtResource("3_twqac")]([SubResource("Resource_nhg3e")])
 image = ExtResource("2_5j00b")
 metadata/_custom_type_script = "uid://5ef5ggycgd2n"

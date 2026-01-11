@@ -18,14 +18,16 @@ Godot card game where players schedule task cards (8 AM - 4 PM) to maximize prod
 ```gdscript
 self_card, self_card_node, hand, draw_pile, discard_pile, schedule
 current_time (8.0-16.0), time_left, scheduled_cards, previous_card
-command_queue, focus_start_time, focus_end_time
+archived_cards, command_queue, focus_start_time, focus_end_time
 ```
 
 **Events Autoload** (`Utils/events.gd`): Global signal bus
 ```gdscript
 signal game_state_changed(game_state: Dictionary)
+signal card_archived(archived_card: CardData)
 ```
-Emitted when: card played, commands executed, focus window changes, initial draw
+- `game_state_changed`: Emitted when card played, commands executed, focus window changes, initial draw
+- `card_archived`: Emitted when a card is archived (for ON_ARCHIVE reactive effects)
 
 ---
 
@@ -53,16 +55,42 @@ Emitted when: card played, commands executed, focus window changes, initial draw
 
 ## Effect System
 
-**Base Effect**: `trigger` (ON_DRAW/BEFORE_PLAY/ON_PLAY/ON_DISCARD/ON_HOLD), `prerequisites`, `apply_effect(context)`
+**Base Effect**: `trigger` (ON_DRAW/BEFORE_PLAY/ON_PLAY/ON_DISCARD/ON_HOLD/ON_ARCHIVE), `prerequisites`, `apply_effect(context)`
 
 **Rule**: Effects queue commands, don't modify state directly (except FocusEffect which sets context flags)
 
 **Built-in Effects**:
 - **CardModifierEffect**: Modifies productivity/duration via targets (ADDER/MULTIPLIER)
-- **CardCopyEffect**: Copies cards between piles with optional preview/animation
+- **CardCopyEffect**: Copies cards between piles with optional preview/animation. `archive_copy=true` archives instead of discarding
 - **CardDiscardEffect**: Discards cards with optional preview (animates actual card, not copy)
+- **ArchiveEffect**: Archives target cards (discard + generate productivity + track). Used by CLASSEMENT_PRIORITAIRE
+- **ArchiveBonusEffect**: Buffs all archived cards with +N productivity. Used by DOSSIER_PERSISTANT
+- **OnArchiveBoostEffect**: Boosts this card's productivity when any card is archived (ON_ARCHIVE trigger). Used by CENTRE_ARCHIVE
 - **FocusEffect**: Creates 2-hour window where played cards get -1 duration (15 min saved)
 - **PlanningEffect**: Draw N cards, player selects M, applies optional modifiers, rest shuffled back
+
+---
+
+## Archive System
+
+**Archive = Discard + Generate Productivity + Track**
+
+Archiving a card immediately generates its productivity (unlike regular discard) and tracks it for future bonuses.
+
+**Key Components**:
+- `GameManager.archived_cards: Array[CardData]` - Tracks all archived cards
+- `ArchiveCardCommand` - Command that performs archive action
+- `Events.card_archived` signal - Notifies when a card is archived
+
+**How to Archive Cards**:
+1. **ArchiveEffect**: Archives existing cards (e.g., CLASSEMENT_PRIORITAIRE archives random card from hand)
+2. **CardCopyEffect with `archive_copy=true`**: Creates a copy and archives it (e.g., DUPLICATA)
+
+**Archive-Related Effects**:
+- **ArchiveBonusEffect** (ON_PLAY): Buffs all archived cards permanently. Example: DOSSIER_PERSISTANT gives +1 productivity to all archived cards
+- **OnArchiveBoostEffect** (ON_ARCHIVE): Reacts while in hand when any card is archived. Example: CENTRE_ARCHIVE gains +1 productivity per archive
+
+**ON_ARCHIVE Trigger**: Special trigger handled by Card node. When `card_archived` signal fires, cards in hand check for ON_ARCHIVE effects and apply them to themselves.
 
 ---
 
@@ -172,7 +200,7 @@ selected_card_duration_modifier: int = 0
 **Key Files**:
 - `Utils/`: events, game_enums (autoload), effect_simulator, game_context, game_command
 - `Strategies/`: card_strategy, card_data, effect_strategy, target_strategy, prerequisite_strategy
-- `Effects/`: card_modifier_effect, card_copy_effect, card_discard_effect, planning_effect
-- `Commands/`: copy_card, create_card_visual, find_card_node, remove_card_from_pile, reparent_card, wait, animate_card, add_card_to_pile
+- `Effects/`: card_modifier_effect, card_copy_effect, card_discard_effect, archive_effect, archive_bonus_effect, on_archive_boost_effect, focus_effect, planning_effect
+- `Commands/`: copy_card, create_card_visual, find_card_node, remove_card_from_pile, reparent_card, wait, animate_card, add_card_to_pile, archive_card_command
 - `Commands/` (Selection): draw_cards_to_selection, animate_cards_to_selection, wait_for_selection, return_cards_to_draw_pile, modify_selected_cards, add_selected_cards_to_pile, cleanup_selection_ui
 - `Objects/UI/`: card_selection_ui (scene + script)
