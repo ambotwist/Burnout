@@ -1,0 +1,28 @@
+[gd_scene load_steps=3 format=3 uid="uid://b5a2n3kfb7453"]
+
+[ext_resource type="Script" uid="uid://cselectionui01" path="res://Objects/UI/card_selection_ui.gd" id="1_script"]
+[ext_resource type="FontFile" uid="uid://cmddn8fk3noym" path="res://Assets/Tiny5/Tiny5-Regular.ttf" id="2_font"]
+
+[node name="CardSelectionUI" type="Node2D"]
+z_index = 100
+script = ExtResource("1_script")
+
+[node name="Background" type="ColorRect" parent="."]
+z_index = -1
+offset_right = 2880.0
+offset_bottom = 1620.0
+color = Color(0, 0, 0, 0.6)
+
+[node name="CardsContainer" type="Node2D" parent="."]
+
+[node name="InstructionLabel" type="Label" parent="."]
+offset_left = 1140.0
+offset_top = 350.0
+offset_right = 1740.0
+offset_bottom = 410.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 48
+text = "Select 1 card"
+horizontal_alignment = 1
+vertical_alignment = 1

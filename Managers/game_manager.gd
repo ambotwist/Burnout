@@ -143,38 +143,43 @@ func on_card_released(card: Card) -> void:
 			# TODO: Show visual feedback to player (e.g., shake animation, error message)
 			return
 
-		# Trigger BEFORE_PLAY effects
-		trigger_card_effects(card, GameEnums.EffectTrigger.BEFORE_PLAY)
+		# Save reference to card_data before the card node is freed
+		# (add_to_schedule frees the card node after animation)
+		var played_card_data: CardData = card.card_data
+
+		# Trigger BEFORE_PLAY effects (await to handle async effects like planning)
+		await trigger_card_effects(card, GameEnums.EffectTrigger.BEFORE_PLAY)
 
 		# Apply focus reduction if card is played within focus window
 		apply_focus_reduction(card)
 
-		var slot_position = schedule.get_slot_position(card.card_data.duration)
+		var slot_position = schedule.get_slot_position(played_card_data.duration)
 		card_manager.add_to_schedule(card, slot_position)
 
-		var slot_color = schedule.get_card_color(card.card_data)
-		schedule.fill_slot(slot_color, card.card_data.duration)
+		var slot_color = schedule.get_card_color(played_card_data)
+		schedule.fill_slot(slot_color, played_card_data.duration)
 
 		# Update scheduled cards (but NOT previous_card yet)
-		scheduled_cards.append(card.card_data)
+		scheduled_cards.append(played_card_data)
 
-		print("Card played: ", card.card_data.strategy.card_id)
+		print("Card played: ", played_card_data.strategy.card_id)
 
-		# Trigger ON_PLAY effects (previous_card is still the PREVIOUS card)
-		trigger_card_effects(card, GameEnums.EffectTrigger.ON_PLAY)
+		# Trigger ON_PLAY effects (await to handle async effects like planning)
+		# Note: card node may be freed after add_to_schedule, but played_card_data is still valid
+		await trigger_card_effects(card, GameEnums.EffectTrigger.ON_PLAY)
 
 		# Add card's final productivity to total
-		total_productivity += card.card_data.productivity
+		total_productivity += played_card_data.productivity
 		update_productivity_label()
 
 		# Spawn floating text showing productivity gained
 		if floating_text_scene and floating_text_spawn_point:
 			var floating_text = floating_text_scene.instantiate()
 			get_tree().current_scene.add_child(floating_text)
-			floating_text.setup(card.card_data.productivity, floating_text_spawn_point.global_position)
+			floating_text.setup(played_card_data.productivity, floating_text_spawn_point.global_position)
 
 		# NOW update previous_card after all effects have triggered
-		previous_card = card.card_data
+		previous_card = played_card_data
 
 		# Draw a new card (after half a second delay)
 		await get_tree().create_timer(0.5).timeout
@@ -232,6 +237,7 @@ func update_productivity_label() -> void:
 
 
 # Build game context and trigger card effects
+# Async to support effects that queue commands requiring player interaction
 func trigger_card_effects(card: Card, trigger: GameEnums.EffectTrigger) -> void:
 	if not card or not card.card_data:
 		return
@@ -279,7 +285,8 @@ func trigger_card_effects(card: Card, trigger: GameEnums.EffectTrigger) -> void:
 		Events.game_state_changed.emit(_build_game_state())
 
 	# Execute all queued commands after effects have been applied
-	_execute_queued_commands(context)
+	# Await to ensure commands complete before returning (e.g., player selection)
+	await _execute_queued_commands(context)
 
 
 # Execute all commands in the context's command queue (async to support command chains)

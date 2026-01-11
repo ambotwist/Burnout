@@ -10,10 +10,10 @@ static func simulate_card_play(card_data: CardData, game_state: Dictionary) -> D
 	if not card_data:
 		return {"productivity": 0, "duration": 0}
 
-	# Start with base values from strategy
+	# Start with current card_data values (may already have modifiers applied, e.g., from planning effect)
 	var result = {
-		"productivity": card_data.strategy.productivity,
-		"duration": card_data.strategy.duration
+		"productivity": card_data.productivity,
+		"duration": card_data.duration
 	}
 
 	# Create a temporary context for simulation (no node reference, no command queue)

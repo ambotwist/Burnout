@@ -1,14 +1,25 @@
-[gd_resource type="Resource" script_class="CardStrategy" load_steps=7 format=3 uid="uid://cgvih8ojpbuvv"]
+[gd_resource type="Resource" script_class="CardStrategy" load_steps=8 format=3 uid="uid://cgvih8ojpbuvv"]
 
 [ext_resource type="Script" uid="uid://c6hm0eda7f1ut" path="res://Strategies/effect_strategy.gd" id="1_4k3th"]
 [ext_resource type="Script" uid="uid://5ef5ggycgd2n" path="res://Strategies/card_strategy.gd" id="2_pakbj"]
 [ext_resource type="Texture2D" uid="uid://bjb8rg0kre3jh" path="res://Assets/CardIllustrations/illu_manif.png" id="2_ruie3"]
 [ext_resource type="Script" uid="uid://bu2dywnhjtkf1" path="res://Strategies/prerequisite_strategy.gd" id="3_88ec0"]
 [ext_resource type="Script" uid="uid://duyv4yweerhy7" path="res://Prerequisites/schedule_fits_prerequisite.gd" id="4_8dbsg"]
+[ext_resource type="Script" path="res://Effects/planning_effect.gd" id="5_planning"]
 
 [sub_resource type="Resource" id="Resource_k4gpa"]
 script = ExtResource("4_8dbsg")
 metadata/_custom_type_script = "uid://duyv4yweerhy7"
+
+[sub_resource type="Resource" id="Resource_planning"]
+script = ExtResource("5_planning")
+cards_to_draw = 3
+cards_to_select = 1
+shuffle_remainder = true
+destination = 1
+selected_card_productivity_modifier = 1
+selected_card_duration_modifier = 0
+trigger = 2
 
 [resource]
 script = ExtResource("2_pakbj")
@@ -17,6 +28,7 @@ deck = 1
 duration = 2
 productivity = 2
 sanity_toll = 1
+effects = Array[ExtResource("1_4k3th")]([SubResource("Resource_planning")])
 play_prerequisites = Array[ExtResource("3_88ec0")]([SubResource("Resource_k4gpa")])
 image = ExtResource("2_ruie3")
 metadata/_custom_type_script = "uid://5ef5ggycgd2n"
