@@ -35,7 +35,10 @@ func execute(game_manager: GameManager) -> void:
 	if not game_manager.archived_cards.has(card_data):
 		game_manager.archived_cards.append(card_data)
 
-	# 5. Clean up visual node
+	# 5. Emit archive event (for CENTRE_ARCHIVE to react while in hand)
+	Events.card_archived.emit(card_data)
+
+	# 6. Clean up visual node
 	if card_node and is_instance_valid(card_node):
 		card_node.queue_free()
 

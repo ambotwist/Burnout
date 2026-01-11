@@ -23,6 +23,9 @@ func _ready() -> void:
 	card_width = $Node2D.scale.x * $Node2D/Sprites/FrontSprites/FrontSprite.texture.get_width()
 	card_height = $Node2D.scale.y * $Node2D/Sprites/FrontSprites/FrontSprite.texture.get_height()
 
+	# Connect to archive events for ON_ARCHIVE effects (e.g., CENTRE_ARCHIVE)
+	Events.card_archived.connect(_on_card_archived)
+
 func apply_card_data() -> void:
 	if card_data.strategy.image:
 		image_rect.texture = card_data.strategy.image
@@ -85,3 +88,31 @@ func reset_display_to_base() -> void:
 
 	duration_label.text = format_duration(card_data.strategy.duration)
 	duration_label.remove_theme_color_override("default_color")
+
+
+## Called when any card is archived - applies ON_ARCHIVE effects if this card is in hand
+func _on_card_archived(_archived_card: CardData) -> void:
+	# Only react if this card is in hand (has a Hand parent)
+	var parent = get_parent()
+	if not parent is Hand:
+		return
+
+	if not card_data:
+		return
+
+	print("  -> Card in hand received archive event: ", card_data.strategy.card_id)
+
+	# Check for ON_ARCHIVE effects and apply them
+	for effect in card_data.effects:
+		if effect and effect.trigger == GameEnums.EffectTrigger.ON_ARCHIVE:
+			print("  -> Found ON_ARCHIVE effect on: ", card_data.strategy.card_id)
+			# Create a minimal context for the effect
+			var context = GameContext.new()
+			context.self_card = card_data
+			context.self_card_node = self
+
+			# Apply the effect (modifies self_card directly)
+			effect.apply_effect(context)
+
+			# Update display to show new productivity
+			apply_card_data()

@@ -53,7 +53,8 @@ enum EffectTrigger {
 	BEFORE_PLAY,
 	ON_PLAY,
 	ON_DISCARD,
-	ON_HOLD
+	ON_HOLD,
+	ON_ARCHIVE  # Triggers when ANY card is archived (while this card is in hand)
 }
 
 # Preview positions for visual effects (used by commands)
