@@ -38,9 +38,11 @@ func initialize_game() -> void:
 
 	if DeckData.selected_deck.size() > 0:
 		card_strategies = DeckData.selected_deck.duplicate()
+		DeckData.last_used_deck = DeckData.selected_deck.duplicate()
 		DeckData.selected_deck.clear()  # Reset for next run
 	else:
 		card_strategies = load_all_card_strategies()
+		DeckData.last_used_deck = card_strategies.duplicate()
 
 	for strategy in card_strategies:
 		var card_data = CardData.create_card_data_from_strategy(strategy)
@@ -322,6 +324,14 @@ func _execute_queued_commands(context: GameContext) -> void:
 func queue_command(command: GameCommand, context: GameContext) -> void:
 	if command:
 		context.command_queue.append(command)
+
+
+## Restart the game with the same deck
+func restart_game() -> void:
+	# Restore the last used deck for reinitialization
+	DeckData.selected_deck = DeckData.last_used_deck.duplicate()
+	# Reload the current scene
+	get_tree().reload_current_scene()
 
 
 ## Build game state dictionary for effect simulation and prerequisites

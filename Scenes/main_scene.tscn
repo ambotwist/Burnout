@@ -81,6 +81,16 @@ texture = ExtResource("3_mai8y")
 expand_mode = 1
 metadata/_edit_lock_ = true
 
+[node name="RestartButton" type="Button" parent="Control"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 170.0
+offset_bottom = 70.0
+theme_override_fonts/font = ExtResource("3_76v2p")
+theme_override_font_sizes/font_size = 32
+text = "RESTART"
+
 [node name="Booth" type="Sprite2D" parent="Control"]
 position = Vector2(1441, 805)
 scale = Vector2(4.4887643, 3.7345514)
@@ -114,3 +124,5 @@ position = Vector2(2122, 1111)
 scale = Vector2(0.4, 0.4)
 script = ExtResource("5_maf8m")
 cards_scale = 0.4
+
+[connection signal="pressed" from="Control/RestartButton" to="GameManager" method="restart_game"]
