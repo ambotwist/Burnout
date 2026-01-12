@@ -334,6 +334,16 @@ func restart_game() -> void:
 	get_tree().reload_current_scene()
 
 
+## Show confirmation dialog for returning to deck editor
+func _on_deck_editor_button_pressed() -> void:
+	$"../Control/ConfirmationDialog".popup_centered()
+
+
+## Return to deck editor when confirmed
+func _on_deck_editor_confirmed() -> void:
+	get_tree().change_scene_to_file("res://Scenes/deck_editor.tscn")
+
+
 ## Build game state dictionary for effect simulation and prerequisites
 func _build_game_state() -> Dictionary:
 	return {
