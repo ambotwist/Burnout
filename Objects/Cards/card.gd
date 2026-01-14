@@ -34,7 +34,7 @@ func apply_card_data() -> void:
 	description_label.text = card_data.strategy.get_description()
 	productivity_label.text = str(card_data.productivity)
 	duration_label.text = format_duration(card_data.duration)
-	sanity_toll_label.text = str(card_data.strategy.sanity_toll)
+	sanity_toll_label.text = format_sanity_toll(card_data.strategy.sanity_toll)
 
 
 func format_duration(duration_slots: int) -> String:
@@ -45,6 +45,15 @@ func format_duration(duration_slots: int) -> String:
 
 	# Format as "0h15", "1h45", etc.
 	return "%dh%02d" % [hours, minutes]
+
+
+func format_sanity_toll(sanity_toll: int) -> String:
+	# Show explicit plus/minus sign
+	# Positive = heals sanity, Negative = drains sanity
+	if sanity_toll > 0:
+		return "+%d" % sanity_toll
+	else:
+		return "%d" % sanity_toll  # Negative numbers already have minus sign
 
 
 ## Update card display with simulated values (shows buffs/debuffs with color coding)

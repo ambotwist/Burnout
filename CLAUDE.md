@@ -19,15 +19,18 @@ Godot card game where players schedule task cards (8 AM - 4 PM) to maximize prod
 self_card, self_card_node, hand, draw_pile, discard_pile, schedule
 current_time (8.0-16.0), time_left, scheduled_cards, previous_card
 archived_cards, command_queue, focus_start_time, focus_end_time
+current_sanity, max_sanity
 ```
 
 **Events Autoload** (`Utils/events.gd`): Global signal bus
 ```gdscript
 signal game_state_changed(game_state: Dictionary)
 signal card_archived(archived_card: CardData)
+signal burnout_triggered
 ```
 - `game_state_changed`: Emitted when card played, commands executed, focus window changes, initial draw
 - `card_archived`: Emitted when a card is archived (for ON_ARCHIVE reactive effects)
+- `burnout_triggered`: Emitted when player sanity reaches 0 (game over)
 
 ---
 
@@ -47,9 +50,38 @@ signal card_archived(archived_card: CardData)
 
 **CardStrategy** (Resource) → **CardData** (Runtime) → **Card** (Node2D Visual)
 
-- CardStrategy: Template (card_id, deck, duration, productivity, effects, play_prerequisites)
+- CardStrategy: Template (card_id, deck, duration, productivity, sanity_toll, effects, play_prerequisites)
 - CardData: Runtime instance via `CardData.create_card_data_from_strategy()`
 - Card: Visual node, displays predicted values with color coding (green=buff, red=debuff)
+
+---
+
+## Sanity System
+
+**Sanity = Player Health Resource**
+
+Players must manage sanity to survive the work day. Reaching 0 sanity triggers "Burnout" (game over).
+
+**Key Properties**:
+- `GameManager.current_sanity`: Current sanity (starts at 10)
+- `GameManager.max_sanity`: Maximum sanity (20)
+- `CardStrategy.sanity_toll`: Sanity change per card (negative = drains, positive = restores)
+
+**Key Components**:
+- `SanityBar` (`Objects/UI/sanity_bar.gd`): UI health bar with animated transitions
+- `BurnoutScreen` (`Objects/UI/burnout_screen.gd`): Game over overlay
+- `Events.burnout_triggered` signal: Fires when sanity reaches 0
+
+**Flow**:
+1. Card played → `apply_sanity_toll()` called after ON_PLAY effects
+2. `current_sanity = clamp(current_sanity + sanity_toll, 0, max_sanity)`
+3. If sanity <= 0 → `Events.burnout_triggered.emit()`
+4. BurnoutScreen appears, interactions disabled
+
+**Sanity Toll Convention**:
+- Negative value = cost (drains sanity, e.g., -3 means lose 3 sanity)
+- Positive value = benefit (restores sanity, e.g., +2 means gain 2 sanity)
+- Card UI displays explicit +/- sign (e.g., "+2" or "-3")
 
 ---
 
@@ -203,4 +235,4 @@ selected_card_duration_modifier: int = 0
 - `Effects/`: card_modifier_effect, card_copy_effect, card_discard_effect, archive_effect, archive_bonus_effect, on_archive_boost_effect, focus_effect, planning_effect
 - `Commands/`: copy_card, create_card_visual, find_card_node, remove_card_from_pile, reparent_card, wait, animate_card, add_card_to_pile, archive_card_command
 - `Commands/` (Selection): draw_cards_to_selection, animate_cards_to_selection, wait_for_selection, return_cards_to_draw_pile, modify_selected_cards, add_selected_cards_to_pile, cleanup_selection_ui
-- `Objects/UI/`: card_selection_ui (scene + script)
+- `Objects/UI/`: card_selection_ui, sanity_bar, burnout_screen

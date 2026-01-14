@@ -4,7 +4,7 @@
 [ext_resource type="Script" uid="uid://5ef5ggycgd2n" path="res://Strategies/card_strategy.gd" id="2_jqrmi"]
 [ext_resource type="Texture2D" uid="uid://08dcucalpwqb" path="res://Assets/CardIllustrations/illu_tri.dossiers.png" id="2_p61kd"]
 [ext_resource type="Script" uid="uid://bu2dywnhjtkf1" path="res://Strategies/prerequisite_strategy.gd" id="3_kcav5"]
-[ext_resource type="Script" path="res://Effects/archive_effect.gd" id="3_sqjhr"]
+[ext_resource type="Script" uid="uid://b3jdvkmy0fcbu" path="res://Effects/archive_effect.gd" id="3_sqjhr"]
 [ext_resource type="Script" uid="uid://dgo1pop83o1e0" path="res://Strategies/target_strategy.gd" id="4_p3vnr"]
 [ext_resource type="Script" uid="uid://duyv4yweerhy7" path="res://Prerequisites/schedule_fits_prerequisite.gd" id="4_vgaqb"]
 [ext_resource type="Script" uid="uid://81kvs73anoyi" path="res://Effects/focus_effect.gd" id="5_p3vnr"]
@@ -36,7 +36,7 @@ card_id = "CLASSEMENT_PRIORITAIRE"
 deck = 1
 duration = 2
 productivity = 2
-sanity_toll = 3
+sanity_toll = -3
 effects = Array[ExtResource("1_8pu30")]([SubResource("Resource_w1qqm"), SubResource("Resource_4qos8")])
 play_prerequisites = Array[ExtResource("3_kcav5")]([SubResource("Resource_sqjhr")])
 image = ExtResource("2_p61kd")

@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="CardStrategy" load_steps=9 format=3 uid="uid://bbtfbxp6s3l62"]
+
+[ext_resource type="Script" uid="uid://c6hm0eda7f1ut" path="res://Strategies/effect_strategy.gd" id="1_effect"]
+[ext_resource type="Script" uid="uid://5ef5ggycgd2n" path="res://Strategies/card_strategy.gd" id="2_card"]
+[ext_resource type="Texture2D" uid="uid://di88rj4aful6v" path="res://Assets/CardIllustrations/illu_pause.clope.png" id="3_image"]
+[ext_resource type="Script" uid="uid://bu2dywnhjtkf1" path="res://Strategies/prerequisite_strategy.gd" id="4_prereq"]
+[ext_resource type="Script" uid="uid://duyv4yweerhy7" path="res://Prerequisites/schedule_fits_prerequisite.gd" id="5_schedule_fits"]
+[ext_resource type="Script" uid="uid://jmbf6ycwg1i2" path="res://Effects/draw_cards_effect.gd" id="6_draw_effect"]
+
+[sub_resource type="Resource" id="Resource_draw_effect"]
+script = ExtResource("6_draw_effect")
+amount = 2
+trigger = 2
+
+[sub_resource type="Resource" id="Resource_schedule_prereq"]
+script = ExtResource("5_schedule_fits")
+metadata/_custom_type_script = "uid://duyv4yweerhy7"
+
+[resource]
+script = ExtResource("2_card")
+card_id = "PAUSE_CLOPE"
+duration = 1
+sanity_toll = 4
+effects = Array[ExtResource("1_effect")]([SubResource("Resource_draw_effect")])
+play_prerequisites = Array[ExtResource("4_prereq")]([SubResource("Resource_schedule_prereq")])
+image = ExtResource("3_image")
+metadata/_custom_type_script = "uid://5ef5ggycgd2n"

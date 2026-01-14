@@ -249,12 +249,13 @@ func update_productivity_label() -> void:
 
 
 # Apply sanity toll from a played card
+# Positive sanity_toll = restore sanity, Negative sanity_toll = drain sanity
 func apply_sanity_toll(card_data: CardData) -> void:
 	var sanity_toll = card_data.strategy.sanity_toll
 	var old_sanity = current_sanity
-	current_sanity = clamp(current_sanity - sanity_toll, 0, max_sanity)
+	current_sanity = clamp(current_sanity + sanity_toll, 0, max_sanity)
 
-	print("Sanity: ", old_sanity, " -> ", current_sanity, " (toll: ", sanity_toll, ")")
+	print("Sanity: ", old_sanity, " -> ", current_sanity, " (change: ", sanity_toll, ")")
 
 	# Check for burnout (game over)
 	if current_sanity <= 0:
