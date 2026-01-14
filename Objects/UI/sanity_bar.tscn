@@ -1,0 +1,27 @@
+[gd_scene load_steps=3 format=3 uid="uid://dq8m5x7k2n3af"]
+
+[ext_resource type="Script" uid="uid://c4yx8j3t2r5ns" path="res://Objects/UI/sanity_bar.gd" id="1_sanity"]
+[ext_resource type="FontFile" uid="uid://cmddn8fk3noym" path="res://Assets/Tiny5/Tiny5-Regular.ttf" id="2_font"]
+
+[node name="SanityBar" type="Control"]
+custom_minimum_size = Vector2(200, 60)
+offset_right = 200.0
+offset_bottom = 60.0
+script = ExtResource("1_sanity")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 0
+offset_right = 200.0
+offset_bottom = 30.0
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 24
+text = "SANITY: 10/20"
+
+[node name="ProgressBar" type="ProgressBar" parent="."]
+layout_mode = 0
+offset_top = 32.0
+offset_right = 200.0
+offset_bottom = 56.0
+max_value = 20.0
+value = 10.0
+show_percentage = false

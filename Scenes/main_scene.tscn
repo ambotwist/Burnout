@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://8v7wo0wgcmti"]
+[gd_scene load_steps=15 format=3 uid="uid://8v7wo0wgcmti"]
 
 [ext_resource type="PackedScene" uid="uid://c1n1saudmbrqw" path="res://Managers/card_manager.tscn" id="1_6l7je"]
 [ext_resource type="Script" uid="uid://be3cp3bdvnga7" path="res://Managers/game_manager.gd" id="1_jv6wh"]
@@ -12,6 +12,8 @@
 [ext_resource type="Script" uid="uid://db8y1s5681q7w" path="res://Objects/Schedule/schedule.gd" id="4_m1efj"]
 [ext_resource type="PackedScene" uid="uid://bb1ug8b7w4fib" path="res://Objects/Piles/hand.tscn" id="4_x6ack"]
 [ext_resource type="Script" uid="uid://e0h2mgdmgdpx" path="res://Objects/Piles/discard_pile.gd" id="5_maf8m"]
+[ext_resource type="PackedScene" path="res://Objects/UI/sanity_bar.tscn" id="6_sanity"]
+[ext_resource type="PackedScene" path="res://Objects/UI/burnout_screen.tscn" id="7_burnout"]
 
 [node name="MainScene" type="Node2D"]
 
@@ -83,20 +85,20 @@ metadata/_edit_lock_ = true
 
 [node name="DeckEditorButton" type="Button" parent="Control"]
 layout_mode = 0
-offset_left = 20.0
-offset_top = 20.0
-offset_right = 170.0
-offset_bottom = 70.0
+offset_left = 27.0
+offset_top = 1408.0
+offset_right = 227.0
+offset_bottom = 1458.0
 theme_override_fonts/font = ExtResource("3_76v2p")
 theme_override_font_sizes/font_size = 32
 text = "DECK EDITOR"
 
 [node name="RestartButton" type="Button" parent="Control"]
 layout_mode = 0
-offset_left = 20.0
-offset_top = 80.0
-offset_right = 170.0
-offset_bottom = 130.0
+offset_left = 27.0
+offset_top = 1468.0
+offset_right = 177.0
+offset_bottom = 1518.0
 theme_override_fonts/font = ExtResource("3_76v2p")
 theme_override_font_sizes/font_size = 32
 text = "RESTART"
@@ -105,7 +107,6 @@ text = "RESTART"
 title = "Return to Deck Editor?"
 initial_position = 1
 size = Vector2i(400, 100)
-content_scale_size = Vector2i(1, 1)
 ok_button_text = "Yes"
 dialog_text = "Are you sure you want to go back to the deck editor? (this will reset your game)"
 cancel_button_text = "No"
@@ -126,6 +127,14 @@ script = ExtResource("4_m1efj")
 [node name="Marker2D" type="Marker2D" parent="Control"]
 position = Vector2(1440, 469)
 
+[node name="SanityBar" parent="Control" instance=ExtResource("6_sanity")]
+anchors_preset = 0
+offset_left = 33.0
+offset_top = 73.0
+offset_right = 233.0
+offset_bottom = 133.0
+scale = Vector2(2, 2)
+
 [node name="CardManager" parent="." instance=ExtResource("1_6l7je")]
 metadata/_edit_lock_ = true
 
@@ -143,6 +152,8 @@ position = Vector2(2122, 1111)
 scale = Vector2(0.4, 0.4)
 script = ExtResource("5_maf8m")
 cards_scale = 0.4
+
+[node name="BurnoutScreen" parent="." instance=ExtResource("7_burnout")]
 
 [connection signal="pressed" from="Control/DeckEditorButton" to="GameManager" method="_on_deck_editor_button_pressed"]
 [connection signal="pressed" from="Control/RestartButton" to="GameManager" method="restart_game"]

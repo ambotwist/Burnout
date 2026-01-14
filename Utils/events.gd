@@ -8,3 +8,6 @@ signal game_state_changed(game_state: Dictionary)
 
 ## Emits when a card is archived (for CENTRE_ARCHIVE to react while in hand)
 signal card_archived(archived_card: CardData)
+
+## Emits when player sanity reaches 0 (game over / burnout)
+signal burnout_triggered

@@ -17,6 +17,11 @@ var previous_card: CardData = null
 var archived_cards: Array[CardData] = []
 var total_productivity: int = 0
 
+# Sanity tracking
+var current_sanity: int = 10
+var max_sanity: int = 20
+const STARTING_SANITY: int = 10
+
 # Focus window tracking
 var focus_start_time: float = -1.0
 var focus_end_time: float = -1.0
@@ -175,6 +180,9 @@ func on_card_released(card: Card) -> void:
 		total_productivity += played_card_data.productivity
 		update_productivity_label()
 
+		# Apply sanity toll
+		apply_sanity_toll(played_card_data)
+
 		# Spawn floating text showing productivity gained
 		if floating_text_scene and floating_text_spawn_point:
 			var floating_text = floating_text_scene.instantiate()
@@ -238,6 +246,19 @@ func play_card(card: Card) -> void:
 func update_productivity_label() -> void:
 	if productivity_label:
 		productivity_label.text = "PRODUCTIVITY: " + str(total_productivity)
+
+
+# Apply sanity toll from a played card
+func apply_sanity_toll(card_data: CardData) -> void:
+	var sanity_toll = card_data.strategy.sanity_toll
+	var old_sanity = current_sanity
+	current_sanity = clamp(current_sanity - sanity_toll, 0, max_sanity)
+
+	print("Sanity: ", old_sanity, " -> ", current_sanity, " (toll: ", sanity_toll, ")")
+
+	# Check for burnout (game over)
+	if current_sanity <= 0:
+		Events.burnout_triggered.emit()
 
 
 # Build game context and trigger card effects
@@ -357,5 +378,7 @@ func _build_game_state() -> Dictionary:
 		"previous_card": previous_card,
 		"archived_cards": archived_cards,
 		"focus_start_time": focus_start_time,
-		"focus_end_time": focus_end_time
+		"focus_end_time": focus_end_time,
+		"current_sanity": current_sanity,
+		"max_sanity": max_sanity
 	}

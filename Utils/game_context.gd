@@ -60,6 +60,16 @@ var focus_start_time: float = -1.0
 var focus_end_time: float = -1.0
 
 # ========================================
+# SANITY
+# ========================================
+
+## Current player sanity
+var current_sanity: int = 10
+
+## Maximum player sanity
+var max_sanity: int = 20
+
+# ========================================
 # COMMAND QUEUE
 # ========================================
 
@@ -173,5 +183,7 @@ static func create_for_card(card_node: Card, game_state: Dictionary = {}) -> Gam
 	context.archived_cards = game_state.get("archived_cards", [])
 	context.focus_start_time = game_state.get("focus_start_time", -1.0)
 	context.focus_end_time = game_state.get("focus_end_time", -1.0)
+	context.current_sanity = game_state.get("current_sanity", 10)
+	context.max_sanity = game_state.get("max_sanity", 20)
 
 	return context
