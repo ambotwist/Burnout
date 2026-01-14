@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CardStrategy" load_steps=5 format=3 uid="uid://dk45153t56gtj"]
+
+[ext_resource type="Script" uid="uid://c6hm0eda7f1ut" path="res://Strategies/effect_strategy.gd" id="1_tylar"]
+[ext_resource type="Texture2D" uid="uid://yo15gfigqtmj" path="res://Assets/CardIllustrations/illu_mirage.png" id="2_bo2n0"]
+[ext_resource type="Script" uid="uid://bu2dywnhjtkf1" path="res://Strategies/prerequisite_strategy.gd" id="2_txspr"]
+[ext_resource type="Script" uid="uid://5ef5ggycgd2n" path="res://Strategies/card_strategy.gd" id="3_bo2n0"]
+
+[resource]
+script = ExtResource("3_bo2n0")
+card_id = "MEDITATION"
+duration = 1
+sanity_toll = 4
+image = ExtResource("2_bo2n0")
+metadata/_custom_type_script = "uid://5ef5ggycgd2n"

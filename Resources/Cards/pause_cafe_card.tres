@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="CardStrategy" load_steps=7 format=3 uid="uid://m3ao581i4t6e"]
+
+[ext_resource type="Script" uid="uid://c6hm0eda7f1ut" path="res://Strategies/effect_strategy.gd" id="1_ytiip"]
+[ext_resource type="Script" uid="uid://bu2dywnhjtkf1" path="res://Strategies/prerequisite_strategy.gd" id="2_ud4e6"]
+[ext_resource type="Script" uid="uid://81kvs73anoyi" path="res://Effects/focus_effect.gd" id="3_60i13"]
+[ext_resource type="Script" uid="uid://5ef5ggycgd2n" path="res://Strategies/card_strategy.gd" id="3_ar102"]
+[ext_resource type="Texture2D" uid="uid://dpy4q4icnep26" path="res://Assets/CardIllustrations/illu_rush.png" id="4_cit1p"]
+
+[sub_resource type="Resource" id="Resource_8ku57"]
+script = ExtResource("3_60i13")
+trigger = 2
+metadata/_custom_type_script = "uid://81kvs73anoyi"
+
+[resource]
+script = ExtResource("3_ar102")
+card_id = "PAUSE_CAFE"
+duration = 1
+sanity_toll = 4
+effects = Array[ExtResource("1_ytiip")]([SubResource("Resource_8ku57")])
+image = ExtResource("4_cit1p")
+metadata/_custom_type_script = "uid://5ef5ggycgd2n"

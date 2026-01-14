@@ -21,3 +21,7 @@ CARD_PAUSE_CLOPE_TITLE,Smoke Break,Pause clope
 CARD_PAUSE_CLOPE_DESC,Draw 2 cards.,Pioche 2 cartes supplémentaires.
 CARD_SIESTE_TITLE,Nap,Sieste
 CARD_SIESTE_DESC,Restore 6 Sanity.,Restaure 6 Santé mentale.
+CARD_PAUSE_CAFE_TITLE,Coffee Break,Pause café
+CARD_PAUSE_CAFE_DESC,Restore 4 Sanity and apply FOCUS.,Restaure 4 Santé mentale. Applique FOCUS.
+CARD_MEDITATION_TITLE,Meditation,Méditation
+CARD_MEDITATION_DESC,Restore 4 Sanity and apply ZEN.,Restaure 4 Santé mentale. Applique ZEN.

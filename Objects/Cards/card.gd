@@ -1,11 +1,18 @@
 class_name Card
 extends Node2D
 
+const DECK_BACKGROUNDS = {
+	GameEnums.DeckType.NEUTRAL: preload("res://Assets/illu_card.shape.yel.png"),
+	GameEnums.DeckType.ADMIN: preload("res://Assets/card_front.png"),
+	GameEnums.DeckType.TECH: preload("res://Assets/card_front.png"),
+}
+
 var card_data: CardData
 static var card_width: int
 static var card_height: int
 
 @onready var image_rect = $Node2D/Sprites/FrontSprites/ImageRect
+@onready var front_sprite = $Node2D/Sprites/FrontSprites/FrontSprite
 @onready var title_label = $Texts/Title
 @onready var description_label = $Texts/Description
 @onready var sanity_toll_label = $Texts/SanityToll
@@ -27,6 +34,11 @@ func _ready() -> void:
 	Events.card_archived.connect(_on_card_archived)
 
 func apply_card_data() -> void:
+	# Set deck-specific background
+	var deck_type = card_data.strategy.deck
+	if deck_type in DECK_BACKGROUNDS:
+		front_sprite.texture = DECK_BACKGROUNDS[deck_type]
+
 	if card_data.strategy.image:
 		image_rect.texture = card_data.strategy.image
 
