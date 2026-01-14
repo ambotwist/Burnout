@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CardStrategy" load_steps=5 format=3 uid="uid://bh2p4ke2cyxlf"]
+
+[ext_resource type="Script" uid="uid://c6hm0eda7f1ut" path="res://Strategies/effect_strategy.gd" id="1_pcc1e"]
+[ext_resource type="Script" uid="uid://bu2dywnhjtkf1" path="res://Strategies/prerequisite_strategy.gd" id="2_gkxvf"]
+[ext_resource type="Texture2D" uid="uid://yo15gfigqtmj" path="res://Assets/CardIllustrations/illu_mirage.png" id="2_mt6b1"]
+[ext_resource type="Script" uid="uid://5ef5ggycgd2n" path="res://Strategies/card_strategy.gd" id="3_mt6b1"]
+
+[resource]
+script = ExtResource("3_mt6b1")
+card_id = "SIESTE"
+duration = 1
+sanity_toll = 6
+image = ExtResource("2_mt6b1")
+metadata/_custom_type_script = "uid://5ef5ggycgd2n"

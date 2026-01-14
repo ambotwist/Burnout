@@ -19,3 +19,5 @@ CARD_CONTROLE_QUALITE_TITLE,Admin Priority,
 CARD_CONTROLE_QUALITE_DESC,+2 productivity to the next drawn card if it's an Admin card. ,"Si la prochaine tâche est de type Admin, la tâche gagne +2 de productivityé. "
 CARD_PAUSE_CLOPE_TITLE,Smoke Break,Pause clope
 CARD_PAUSE_CLOPE_DESC,Draw 2 cards.,Pioche 2 cartes supplémentaires.
+CARD_SIESTE_TITLE,Nap,Sieste
+CARD_SIESTE_DESC,Restore 6 Sanity.,Restaure 6 Santé mentale.
