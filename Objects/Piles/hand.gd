@@ -61,6 +61,7 @@ func _on_game_state_changed(game_state: Dictionary) -> void:
 		# Get base values from strategy
 		var base_productivity = card.card_data.strategy.productivity
 		var base_duration = card.card_data.strategy.duration
+		var base_sanity_toll = card.card_data.strategy.sanity_toll
 
 		# Simulate what values the card would have if played now
 		var simulated = EffectSimulator.simulate_card_play(card.card_data, game_state)
@@ -70,5 +71,7 @@ func _on_game_state_changed(game_state: Dictionary) -> void:
 			base_productivity,
 			simulated.productivity,
 			base_duration,
-			simulated.duration
+			simulated.duration,
+			base_sanity_toll,
+			simulated.sanity_toll
 		)

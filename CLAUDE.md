@@ -19,7 +19,7 @@ Godot card game where players schedule task cards (8 AM - 4 PM) to maximize prod
 self_card, self_card_node, hand, draw_pile, discard_pile, schedule
 current_time (8.0-16.0), time_left, scheduled_cards, previous_card
 archived_cards, command_queue, focus_start_time, focus_end_time
-current_sanity, max_sanity
+zen_start_time, zen_end_time, current_sanity, max_sanity
 ```
 
 **Events Autoload** (`Utils/events.gd`): Global signal bus
@@ -89,7 +89,7 @@ Players must manage sanity to survive the work day. Reaching 0 sanity triggers "
 
 **Base Effect**: `trigger` (ON_DRAW/BEFORE_PLAY/ON_PLAY/ON_DISCARD/ON_HOLD/ON_ARCHIVE), `prerequisites`, `apply_effect(context)`
 
-**Rule**: Effects queue commands, don't modify state directly (except FocusEffect which sets context flags)
+**Rule**: Effects queue commands, don't modify state directly (except FocusEffect/ZenEffect which set context flags)
 
 **Built-in Effects**:
 - **CardModifierEffect**: Modifies productivity/duration via targets (ADDER/MULTIPLIER)
@@ -98,7 +98,8 @@ Players must manage sanity to survive the work day. Reaching 0 sanity triggers "
 - **ArchiveEffect**: Archives target cards (discard + generate productivity + track). Used by CLASSEMENT_PRIORITAIRE
 - **ArchiveBonusEffect**: Buffs all archived cards with +N productivity. Used by DOSSIER_PERSISTANT
 - **OnArchiveBoostEffect**: Boosts this card's productivity when any card is archived (ON_ARCHIVE trigger). Used by CENTRE_ARCHIVE
-- **FocusEffect**: Creates 2-hour window where played cards get -1 duration (15 min saved)
+- **FocusEffect**: Creates time window where played cards get -1 duration (15 min saved). Visual: blue overlay on schedule
+- **ZenEffect**: Creates time window where played cards get -1 sanity toll (only affects negative tolls). Visual: green overlay on schedule
 - **PlanningEffect**: Draw N cards, player selects M, applies optional modifiers, rest shuffled back
 
 ---
@@ -134,8 +135,8 @@ Archiving a card immediately generates its productivity (unlike regular discard)
 ```
 Hand receives game_state_changed signal
 → For each card: EffectSimulator.simulate_card_play(card_data, game_state)
-→ Simulates BEFORE_PLAY + focus reduction + ON_PLAY effects
-→ Returns predicted {productivity, duration}
+→ Simulates BEFORE_PLAY + focus reduction + zen reduction + ON_PLAY effects
+→ Returns predicted {productivity, duration, sanity_toll}
 → Card displays with color coding (green=buff, red=debuff, white=unchanged)
 ```
 
@@ -206,10 +207,10 @@ selected_card_duration_modifier: int = 0
 
 1. `on_card_released()` → Check `play_prerequisites` (fail → return to hand)
 2. Save `card_data` reference (card node will be freed later)
-3. **Await** `BEFORE_PLAY` effects → Apply focus reduction
+3. **Await** `BEFORE_PLAY` effects → Apply focus reduction → Apply zen reduction
 4. Place in schedule (update time, add to `scheduled_cards`, free card node)
 5. **Await** `ON_PLAY` effects (check `effect.prerequisites`) - async for player interaction
-6. Execute command queue → Update productivity → Set `previous_card`
+6. Execute command queue → Update productivity → Apply sanity toll → Set `previous_card`
 7. Draw new card → **Emit `Events.game_state_changed`** → Hand updates card displays
 
 **Note**: `trigger_card_effects()` is async to support effects requiring player input (e.g., PlanningEffect)
@@ -232,7 +233,7 @@ selected_card_duration_modifier: int = 0
 **Key Files**:
 - `Utils/`: events, game_enums (autoload), effect_simulator, game_context, game_command
 - `Strategies/`: card_strategy, card_data, effect_strategy, target_strategy, prerequisite_strategy
-- `Effects/`: card_modifier_effect, card_copy_effect, card_discard_effect, archive_effect, archive_bonus_effect, on_archive_boost_effect, focus_effect, planning_effect
+- `Effects/`: card_modifier_effect, card_copy_effect, card_discard_effect, archive_effect, archive_bonus_effect, on_archive_boost_effect, focus_effect, zen_effect, planning_effect
 - `Commands/`: copy_card, create_card_visual, find_card_node, remove_card_from_pile, reparent_card, wait, animate_card, add_card_to_pile, archive_card_command
 - `Commands/` (Selection): draw_cards_to_selection, animate_cards_to_selection, wait_for_selection, return_cards_to_draw_pile, modify_selected_cards, add_selected_cards_to_pile, cleanup_selection_ui
 - `Objects/UI/`: card_selection_ui, sanity_bar, burnout_screen

@@ -1,14 +1,21 @@
-[gd_resource type="Resource" script_class="CardStrategy" load_steps=5 format=3 uid="uid://dk45153t56gtj"]
+[gd_resource type="Resource" script_class="CardStrategy" load_steps=7 format=3 uid="uid://dk45153t56gtj"]
 
 [ext_resource type="Script" uid="uid://c6hm0eda7f1ut" path="res://Strategies/effect_strategy.gd" id="1_tylar"]
 [ext_resource type="Texture2D" uid="uid://yo15gfigqtmj" path="res://Assets/CardIllustrations/illu_mirage.png" id="2_bo2n0"]
 [ext_resource type="Script" uid="uid://bu2dywnhjtkf1" path="res://Strategies/prerequisite_strategy.gd" id="2_txspr"]
 [ext_resource type="Script" uid="uid://5ef5ggycgd2n" path="res://Strategies/card_strategy.gd" id="3_bo2n0"]
+[ext_resource type="Script" uid="uid://b0fyevh636fbd" path="res://Effects/zen_effect.gd" id="3_ieheb"]
+
+[sub_resource type="Resource" id="Resource_lvywt"]
+script = ExtResource("3_ieheb")
+trigger = 2
+metadata/_custom_type_script = "uid://b0fyevh636fbd"
 
 [resource]
 script = ExtResource("3_bo2n0")
 card_id = "MEDITATION"
 duration = 1
 sanity_toll = 4
+effects = Array[ExtResource("1_tylar")]([SubResource("Resource_lvywt")])
 image = ExtResource("2_bo2n0")
 metadata/_custom_type_script = "uid://5ef5ggycgd2n"

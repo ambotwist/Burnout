@@ -5,15 +5,16 @@ extends RefCounted
 ## Used for previewing buff/debuff values on cards in hand
 
 ## Simulate what would happen if a card were played right now
-## Returns a dictionary with predicted productivity and duration values
+## Returns a dictionary with predicted productivity, duration, and sanity_toll values
 static func simulate_card_play(card_data: CardData, game_state: Dictionary) -> Dictionary:
 	if not card_data:
-		return {"productivity": 0, "duration": 0}
+		return {"productivity": 0, "duration": 0, "sanity_toll": 0}
 
 	# Start with current card_data values (may already have modifiers applied, e.g., from planning effect)
 	var result = {
 		"productivity": card_data.productivity,
-		"duration": card_data.duration
+		"duration": card_data.duration,
+		"sanity_toll": card_data.strategy.sanity_toll
 	}
 
 	# Create a temporary context for simulation (no node reference, no command queue)
@@ -24,6 +25,9 @@ static func simulate_card_play(card_data: CardData, game_state: Dictionary) -> D
 
 	# Simulate focus reduction (happens between BEFORE_PLAY and ON_PLAY)
 	_simulate_focus_reduction(card_data, context, result)
+
+	# Simulate zen reduction (happens between BEFORE_PLAY and ON_PLAY)
+	_simulate_zen_reduction(card_data, context, result)
 
 	# Simulate ON_PLAY effects
 	_simulate_effects_for_trigger(card_data, context, GameEnums.EffectTrigger.ON_PLAY, result)
@@ -50,6 +54,8 @@ static func _create_simulation_context(card_data: CardData, game_state: Dictiona
 	context.previous_card = game_state.get("previous_card")
 	context.focus_start_time = game_state.get("focus_start_time", -1.0)
 	context.focus_end_time = game_state.get("focus_end_time", -1.0)
+	context.zen_start_time = game_state.get("zen_start_time", -1.0)
+	context.zen_end_time = game_state.get("zen_end_time", -1.0)
 
 	return context
 
@@ -79,7 +85,7 @@ static func _simulate_effects_for_trigger(card_data: CardData, context: GameCont
 
 
 ## Simulate a CardModifierEffect
-static func _simulate_modifier_effect(effect: CardModifierEffect, context: GameContext, result: Dictionary) -> void:
+static func _simulate_modifier_effect(effect: CardModifierEffect, _context: GameContext, result: Dictionary) -> void:
 	# Check if this effect targets SELF
 	var targets_self = false
 	for target_strategy in effect.target_strategies:
@@ -108,7 +114,7 @@ static func _simulate_modifier_effect(effect: CardModifierEffect, context: GameC
 
 
 ## Simulate focus reduction (from GameManager.apply_focus_reduction)
-static func _simulate_focus_reduction(card_data: CardData, context: GameContext, result: Dictionary) -> void:
+static func _simulate_focus_reduction(_card_data: CardData, context: GameContext, result: Dictionary) -> void:
 	# Check if focus window is active
 	if context.focus_start_time < 0 or context.focus_end_time < 0:
 		return
@@ -120,3 +126,18 @@ static func _simulate_focus_reduction(card_data: CardData, context: GameContext,
 		# Only reduce duration if it's greater than 1 (more than 15 minutes)
 		if result.duration > 1:
 			result.duration -= 1  # Reduce by 1 slot (15 minutes)
+
+
+## Simulate zen reduction (from GameManager.apply_zen_reduction)
+static func _simulate_zen_reduction(_card_data: CardData, context: GameContext, result: Dictionary) -> void:
+	# Check if zen window is active
+	if context.zen_start_time < 0 or context.zen_end_time < 0:
+		return
+
+	var current_time = context.current_time
+
+	# Check if card would start within the zen window
+	if current_time >= context.zen_start_time and current_time < context.zen_end_time:
+		# Only reduce sanity toll if it's negative (draining cards)
+		if result.sanity_toll < 0:
+			result.sanity_toll += 1  # Reduce drain by 1

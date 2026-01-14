@@ -60,6 +60,16 @@ var focus_start_time: float = -1.0
 var focus_end_time: float = -1.0
 
 # ========================================
+# ZEN WINDOW
+# ========================================
+
+## Zen effect start time (in schedule hours, e.g., 9.5)
+var zen_start_time: float = -1.0
+
+## Zen effect end time (in schedule hours, e.g., 11.5)
+var zen_end_time: float = -1.0
+
+# ========================================
 # SANITY
 # ========================================
 
@@ -183,6 +193,8 @@ static func create_for_card(card_node: Card, game_state: Dictionary = {}) -> Gam
 	context.archived_cards = game_state.get("archived_cards", [])
 	context.focus_start_time = game_state.get("focus_start_time", -1.0)
 	context.focus_end_time = game_state.get("focus_end_time", -1.0)
+	context.zen_start_time = game_state.get("zen_start_time", -1.0)
+	context.zen_end_time = game_state.get("zen_end_time", -1.0)
 	context.current_sanity = game_state.get("current_sanity", 10)
 	context.max_sanity = game_state.get("max_sanity", 20)
 

@@ -69,7 +69,7 @@ func format_sanity_toll(sanity_toll: int) -> String:
 
 
 ## Update card display with simulated values (shows buffs/debuffs with color coding)
-func update_display_with_preview(base_productivity: int, predicted_productivity: int, base_duration: int, predicted_duration: int) -> void:
+func update_display_with_preview(base_productivity: int, predicted_productivity: int, base_duration: int, predicted_duration: int, base_sanity_toll: int = 0, predicted_sanity_toll: int = 0) -> void:
 	# Update productivity display with color coding
 	if predicted_productivity > base_productivity:
 		# Buff: show in green
@@ -98,6 +98,21 @@ func update_display_with_preview(base_productivity: int, predicted_productivity:
 		duration_label.text = format_duration(predicted_duration)
 		duration_label.remove_theme_color_override("default_color")
 
+	# Update sanity toll display with color coding
+	# Higher sanity toll is better (less drain or more restore)
+	if predicted_sanity_toll > base_sanity_toll:
+		# Sanity toll increased (less drain): show in green
+		sanity_toll_label.text = format_sanity_toll(predicted_sanity_toll)
+		sanity_toll_label.add_theme_color_override("default_color", Color.GREEN)
+	elif predicted_sanity_toll < base_sanity_toll:
+		# Sanity toll decreased (more drain): show in red
+		sanity_toll_label.text = format_sanity_toll(predicted_sanity_toll)
+		sanity_toll_label.add_theme_color_override("default_color", Color.RED)
+	else:
+		# No change: show in white
+		sanity_toll_label.text = format_sanity_toll(predicted_sanity_toll)
+		sanity_toll_label.remove_theme_color_override("default_color")
+
 
 ## Reset card display to base values (no color coding)
 func reset_display_to_base() -> void:
@@ -109,6 +124,9 @@ func reset_display_to_base() -> void:
 
 	duration_label.text = format_duration(card_data.strategy.duration)
 	duration_label.remove_theme_color_override("default_color")
+
+	sanity_toll_label.text = format_sanity_toll(card_data.strategy.sanity_toll)
+	sanity_toll_label.remove_theme_color_override("default_color")
 
 
 ## Called when any card is archived - applies ON_ARCHIVE effects if this card is in hand

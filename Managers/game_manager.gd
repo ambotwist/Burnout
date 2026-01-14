@@ -26,6 +26,10 @@ const STARTING_SANITY: int = 10
 var focus_start_time: float = -1.0
 var focus_end_time: float = -1.0
 
+# Zen window tracking
+var zen_start_time: float = -1.0
+var zen_end_time: float = -1.0
+
 
 ### SETUP ###
 
@@ -139,6 +143,27 @@ func apply_focus_reduction(card: Card) -> void:
 			var old_duration = card.card_data.duration
 			card.card_data.duration -= 1  # Reduce by 1 slot (15 minutes)
 			print("  → FOCUS: Duration reduced from ", old_duration, " to ", card.card_data.duration, " (saved 15 min)")
+
+
+# Apply zen reduction if the card is being played within the zen window
+func apply_zen_reduction(card: Card) -> void:
+	if not card or not card.card_data:
+		return
+
+	# Check if zen window is active
+	if zen_start_time < 0 or zen_end_time < 0:
+		return  # No active zen window
+
+	var current_time = schedule.current_time if schedule else 0.0
+
+	# Check if card starts within the zen window
+	if current_time >= zen_start_time and current_time < zen_end_time:
+		# Only reduce sanity toll if it's negative (draining cards)
+		if card.card_data.strategy.sanity_toll < 0:
+			var old_toll = card.card_data.strategy.sanity_toll
+			# Store the zen bonus in card_data for display purposes
+			card.card_data.zen_sanity_bonus = 1
+			print("  → ZEN: Sanity toll will be reduced from ", old_toll, " to ", old_toll + 1, " (saved 1 sanity)")
 	
 
 func on_card_released(card: Card) -> void:
@@ -160,6 +185,9 @@ func on_card_released(card: Card) -> void:
 
 		# Apply focus reduction if card is played within focus window
 		apply_focus_reduction(card)
+
+		# Apply zen reduction if card is played within zen window
+		apply_zen_reduction(card)
 
 		var slot_position = schedule.get_slot_position(played_card_data.duration)
 		card_manager.add_to_schedule(card, slot_position)
@@ -223,7 +251,9 @@ func can_play_card(card: Card) -> bool:
 		"previous_card": previous_card,
 		"archived_cards": archived_cards,
 		"focus_start_time": focus_start_time,
-		"focus_end_time": focus_end_time
+		"focus_end_time": focus_end_time,
+		"zen_start_time": zen_start_time,
+		"zen_end_time": zen_end_time
 	}
 
 	var context = GameContext.create_for_card(card, game_state)
@@ -251,11 +281,14 @@ func update_productivity_label() -> void:
 # Apply sanity toll from a played card
 # Positive sanity_toll = restore sanity, Negative sanity_toll = drain sanity
 func apply_sanity_toll(card_data: CardData) -> void:
-	var sanity_toll = card_data.strategy.sanity_toll
+	var sanity_toll = card_data.strategy.sanity_toll + card_data.zen_sanity_bonus
 	var old_sanity = current_sanity
 	current_sanity = clamp(current_sanity + sanity_toll, 0, max_sanity)
 
-	print("Sanity: ", old_sanity, " -> ", current_sanity, " (change: ", sanity_toll, ")")
+	if card_data.zen_sanity_bonus > 0:
+		print("Sanity: ", old_sanity, " -> ", current_sanity, " (base: ", card_data.strategy.sanity_toll, ", zen bonus: +", card_data.zen_sanity_bonus, ")")
+	else:
+		print("Sanity: ", old_sanity, " -> ", current_sanity, " (change: ", sanity_toll, ")")
 
 	# Check for burnout (game over)
 	if current_sanity <= 0:
@@ -280,7 +313,9 @@ func trigger_card_effects(card: Card, trigger: GameEnums.EffectTrigger) -> void:
 		"previous_card": previous_card,
 		"archived_cards": archived_cards,
 		"focus_start_time": focus_start_time,
-		"focus_end_time": focus_end_time
+		"focus_end_time": focus_end_time,
+		"zen_start_time": zen_start_time,
+		"zen_end_time": zen_end_time
 	}
 
 	# Create context using factory method
@@ -307,8 +342,12 @@ func trigger_card_effects(card: Card, trigger: GameEnums.EffectTrigger) -> void:
 	focus_start_time = context.focus_start_time
 	focus_end_time = context.focus_end_time
 
-	# Notify that game state may have changed (focus window updated)
-	if context.focus_start_time != -1.0:
+	# Sync zen window state from context (effects may have updated it)
+	zen_start_time = context.zen_start_time
+	zen_end_time = context.zen_end_time
+
+	# Notify that game state may have changed (focus/zen window updated)
+	if context.focus_start_time != -1.0 or context.zen_start_time != -1.0:
 		Events.game_state_changed.emit(_build_game_state())
 
 	# Execute all queued commands after effects have been applied
@@ -380,6 +419,8 @@ func _build_game_state() -> Dictionary:
 		"archived_cards": archived_cards,
 		"focus_start_time": focus_start_time,
 		"focus_end_time": focus_end_time,
+		"zen_start_time": zen_start_time,
+		"zen_end_time": zen_end_time,
 		"current_sanity": current_sanity,
 		"max_sanity": max_sanity
 	}

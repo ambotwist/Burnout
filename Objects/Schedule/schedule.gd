@@ -18,6 +18,10 @@ var time_slot_scene
 var focus_start_time: float = -1.0
 var focus_end_time: float = -1.0
 
+# Zen window tracking (set by ZenEffect)
+var zen_start_time: float = -1.0
+var zen_end_time: float = -1.0
+
 func _ready() -> void:
 	time_slot_scene = preload(TIME_SLOT_SCENE_PATH)
 	
@@ -71,12 +75,46 @@ func draw_focus_window(grid_width: float) -> void:
 	)
 
 
+func draw_zen_window(grid_width: float) -> void:
+	# Only draw if zen window is active
+	if zen_start_time < 0 or zen_end_time < 0:
+		return
+
+	# Calculate x positions for zen window
+	var start_offset = zen_start_time - start_of_day
+	var end_offset = zen_end_time - start_of_day
+
+	var x_start = start_offset * grid_width
+	var x_end = end_offset * grid_width
+	var window_width = x_end - x_start
+
+	# Draw semi-transparent green/teal overlay
+	var zen_color = Color(0.2, 0.8, 0.5, 0.15)  # Light green/teal with transparency
+	draw_rect(
+		Rect2(x_start, horizontal_divider_height, window_width, schedule_height),
+		zen_color,
+		true  # filled
+	)
+
+	# Draw border around zen window
+	var border_color = Color(0.2, 0.8, 0.5, 0.4)  # Same green/teal, more opaque
+	draw_rect(
+		Rect2(x_start, horizontal_divider_height, window_width, schedule_height),
+		border_color,
+		false,  # not filled
+		2  # border width
+	)
+
+
 func _draw():
 	var day_length = end_of_day - start_of_day
 	var grid_width = size.x / day_length
 
 	# Draw focus window overlay if active (behind grid lines)
 	draw_focus_window(grid_width)
+
+	# Draw zen window overlay if active (behind grid lines)
+	draw_zen_window(grid_width)
 
 	draw_line(Vector2(0, horizontal_divider_height), Vector2(size.x, horizontal_divider_height), Color(1, 1, 1, 0.6), 4)
 

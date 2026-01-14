@@ -35,6 +35,7 @@ func execute(game_manager: GameManager) -> void:
 		# Store base values before modification (from strategy)
 		var base_productivity = card.card_data.strategy.productivity
 		var base_duration = card.card_data.strategy.duration
+		var base_sanity_toll = card.card_data.strategy.sanity_toll
 
 		# Apply productivity modifier
 		if productivity_modifier != 0:
@@ -49,11 +50,14 @@ func execute(game_manager: GameManager) -> void:
 			print("  -> Modified card duration: ", old_duration, " -> ", card.card_data.duration)
 
 		# Update the card's visual display with color coding (green for buff, red for debuff)
+		# Sanity toll is unchanged by this command, so base and predicted are the same
 		card.update_display_with_preview(
 			base_productivity,
 			card.card_data.productivity,
 			base_duration,
-			card.card_data.duration
+			card.card_data.duration,
+			base_sanity_toll,
+			base_sanity_toll
 		)
 
 	print("  -> Modified ", selected_cards.size(), " selected card(s)")

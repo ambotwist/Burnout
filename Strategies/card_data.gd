@@ -6,6 +6,7 @@ var game_id: int
 var duration: int
 var productivity: int
 var effects: Array[EffectStrategy]
+var zen_sanity_bonus: int = 0  # Bonus from zen window (reduces sanity toll)
 
 
 static func create_card_data_from_strategy(card_strategy: CardStrategy) -> CardData:
