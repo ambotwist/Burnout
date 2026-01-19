@@ -2,10 +2,10 @@ class_name Card
 extends Node2D
 
 const DECK_BACKGROUNDS = {
-	GameEnums.DeckType.NEUTRAL: preload("res://Assets/illu_card.shape.yel.png"),
+	GameEnums.DeckType.NEUTRAL: preload("res://Assets/CardIllustrations/illu_card.shape.white.png"),
 	GameEnums.DeckType.ADMIN: preload("res://Assets/card_front.png"),
 	GameEnums.DeckType.TECH: preload("res://Assets/card_front.png"),
-	GameEnums.DeckType.STRAIN: preload("res://Assets/card_front.png"),
+	GameEnums.DeckType.STRAIN: preload("res://Assets/CardIllustrations/illu_card.shape.black.png"),
 }
 
 var card_data: CardData
