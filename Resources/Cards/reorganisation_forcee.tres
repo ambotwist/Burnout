@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="CardStrategy" load_steps=4 format=3 uid="uid://odcdssj1rw14"]
+
+[ext_resource type="Script" uid="uid://c6hm0eda7f1ut" path="res://Strategies/effect_strategy.gd" id="1_g5fvr"]
+[ext_resource type="Script" uid="uid://bu2dywnhjtkf1" path="res://Strategies/prerequisite_strategy.gd" id="2_8qbos"]
+[ext_resource type="Script" uid="uid://5ef5ggycgd2n" path="res://Strategies/card_strategy.gd" id="3_mt6v2"]
+
+[resource]
+script = ExtResource("3_mt6v2")
+metadata/_custom_type_script = "uid://5ef5ggycgd2n"
