@@ -14,6 +14,7 @@ metadata/_custom_type_script = "uid://jmbf6ycwg1i2"
 
 [resource]
 script = ExtResource("3_mt6v2")
+card_id = "REORGANISATION_FORCEE"
 deck = 1
 duration = 2
 productivity = 4
