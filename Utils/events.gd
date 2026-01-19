@@ -11,3 +11,6 @@ signal card_archived(archived_card: CardData)
 
 ## Emits when player sanity reaches 0 (game over / burnout)
 signal burnout_triggered
+
+## Emits when an urgent card's window expires and it needs to be auto-discarded
+signal urgent_card_expired(card: Card)

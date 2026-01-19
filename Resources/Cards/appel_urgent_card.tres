@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="CardStrategy" load_steps=7 format=3 uid="uid://dxu7k2m8ap1qy"]
+
+[ext_resource type="Script" uid="uid://c6hm0eda7f1ut" path="res://Strategies/effect_strategy.gd" id="1_effect"]
+[ext_resource type="Script" uid="uid://5ef5ggycgd2n" path="res://Strategies/card_strategy.gd" id="2_card"]
+[ext_resource type="Script" uid="uid://bu2dywnhjtkf1" path="res://Strategies/prerequisite_strategy.gd" id="3_sfy4k"]
+[ext_resource type="Script" uid="uid://l6cw5mvp4epa" path="res://Effects/apply_urgency_to_next_drawn_effect.gd" id="3_urgency"]
+[ext_resource type="Texture2D" uid="uid://dpy4q4icnep26" path="res://Assets/CardIllustrations/illu_rush.png" id="4_vdjg5"]
+
+[sub_resource type="Resource" id="Resource_urgency"]
+script = ExtResource("3_urgency")
+trigger = 2
+metadata/_custom_type_script = ExtResource("3_urgency")
+
+[resource]
+script = ExtResource("2_card")
+card_id = "APPEL_URGENT"
+deck = 3
+duration = 1
+productivity = 2
+sanity_toll = -1
+effects = Array[ExtResource("1_effect")]([SubResource("Resource_urgency")])
+image = ExtResource("4_vdjg5")
+metadata/_custom_type_script = "uid://5ef5ggycgd2n"

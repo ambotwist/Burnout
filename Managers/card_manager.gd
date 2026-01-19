@@ -60,6 +60,9 @@ func draw_card() -> void:
 	hand.add_card(drawn_card)
 	drawn_card.apply_card_data()
 
+	# Trigger ON_DRAW effects (e.g., UrgencyEffect)
+	_trigger_on_draw_effects(drawn_card)
+
 	# Animate to hand position with hand scale
 	update_cards_hand_positions()
 	drawn_card.animation_player.play("flip")
@@ -68,6 +71,26 @@ func draw_card() -> void:
 func _on_draw_pile_scale_changed() -> void:
 	draw_pile_scale = draw_pile.cards_scale
 	draw_pile.scale = Vector2(draw_pile_scale, draw_pile_scale)
+
+
+## Trigger ON_DRAW effects for a freshly drawn card (e.g., UrgencyEffect)
+func _trigger_on_draw_effects(card: Card) -> void:
+	if not card or not card.card_data:
+		return
+
+	for effect in card.card_data.effects:
+		if effect and effect.trigger == GameEnums.EffectTrigger.ON_DRAW:
+			# Create minimal context for ON_DRAW
+			var context = GameContext.new()
+			context.self_card = card.card_data
+			context.self_card_node = card
+
+			# Apply the effect
+			print("  -> ON_DRAW effect: ", effect.get_script().resource_path.get_file())
+			effect.apply_effect(context)
+
+	# Update visual after ON_DRAW effects (shows urgency overlay if applicable)
+	card.apply_card_data()
 
 
 ### HAND FUNCTIONS ###

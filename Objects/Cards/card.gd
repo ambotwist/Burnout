@@ -5,6 +5,7 @@ const DECK_BACKGROUNDS = {
 	GameEnums.DeckType.NEUTRAL: preload("res://Assets/illu_card.shape.yel.png"),
 	GameEnums.DeckType.ADMIN: preload("res://Assets/card_front.png"),
 	GameEnums.DeckType.TECH: preload("res://Assets/card_front.png"),
+	GameEnums.DeckType.STRAIN: preload("res://Assets/card_front.png"),
 }
 
 var card_data: CardData
@@ -20,6 +21,9 @@ static var card_height: int
 @onready var duration_label = $Texts/Duration
 @onready var collision_shape = $Node2D/Area2D/CollisionShape2D
 @onready var animation_player = $AnimationPlayer
+@onready var urgency_overlay = $Node2D/Sprites/FrontSprites/UrgencyOverlay
+
+var _urgency_tween: Tween = null
 
 func _ready() -> void:
 	add_to_group("interactable")
@@ -47,6 +51,9 @@ func apply_card_data() -> void:
 	productivity_label.text = str(card_data.productivity)
 	duration_label.text = format_duration(card_data.duration)
 	sanity_toll_label.text = format_sanity_toll(card_data.strategy.sanity_toll)
+
+	# Update urgency visual overlay
+	_update_urgency_visual()
 
 
 func format_duration(duration_slots: int) -> String:
@@ -152,3 +159,38 @@ func _on_card_archived(_archived_card: CardData) -> void:
 
 			# Update display to show new productivity
 			apply_card_data()
+
+
+## Update urgency visual overlay based on card_data.is_urgent
+func _update_urgency_visual() -> void:
+	if not urgency_overlay:
+		return
+
+	if card_data and card_data.is_urgent:
+		_show_urgency_overlay()
+	else:
+		_hide_urgency_overlay()
+
+
+## Show pulsing red urgency overlay
+func _show_urgency_overlay() -> void:
+	urgency_overlay.visible = true
+
+	# Kill existing tween if running
+	if _urgency_tween and _urgency_tween.is_running():
+		_urgency_tween.kill()
+
+	# Create pulsing animation (loops infinitely)
+	_urgency_tween = create_tween().set_loops()
+	_urgency_tween.tween_property(urgency_overlay, "modulate:a", 0.5, 0.4)
+	_urgency_tween.tween_property(urgency_overlay, "modulate:a", 0.2, 0.4)
+
+
+## Hide urgency overlay
+func _hide_urgency_overlay() -> void:
+	if urgency_overlay:
+		urgency_overlay.visible = false
+
+	if _urgency_tween and _urgency_tween.is_running():
+		_urgency_tween.kill()
+		_urgency_tween = null

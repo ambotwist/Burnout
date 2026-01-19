@@ -141,6 +141,15 @@ stretch_mode = 3
 [node name="FrontSprite" type="Sprite2D" parent="Node2D/Sprites/FrontSprites"]
 texture = ExtResource("2_2nflo")
 
+[node name="UrgencyOverlay" type="ColorRect" parent="Node2D/Sprites/FrontSprites"]
+visible = false
+offset_left = -50.0
+offset_top = -81.0
+offset_right = 56.0
+offset_bottom = 82.0
+mouse_filter = 2
+color = Color(1, 0.15, 0.15, 0.35)
+
 [node name="Area2D" type="Area2D" parent="Node2D"]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/Area2D"]

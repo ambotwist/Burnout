@@ -29,6 +29,9 @@ static func simulate_card_play(card_data: CardData, game_state: Dictionary) -> D
 	# Simulate zen reduction (happens between BEFORE_PLAY and ON_PLAY)
 	_simulate_zen_reduction(card_data, context, result)
 
+	# Simulate urgency bonus (doubles productivity if urgent and just drawn)
+	_simulate_urgency_bonus(card_data, game_state, result)
+
 	# Simulate ON_PLAY effects
 	_simulate_effects_for_trigger(card_data, context, GameEnums.EffectTrigger.ON_PLAY, result)
 
@@ -141,3 +144,15 @@ static func _simulate_zen_reduction(_card_data: CardData, context: GameContext, 
 		# Only reduce sanity toll if it's negative (draining cards)
 		if result.sanity_toll < 0:
 			result.sanity_toll += 1  # Reduce drain by 1
+
+
+## Simulate urgency bonus (doubles productivity if card is urgent and just drawn)
+static func _simulate_urgency_bonus(card_data: CardData, game_state: Dictionary, result: Dictionary) -> void:
+	# Only apply if card has urgency flag set
+	if not card_data.is_urgent:
+		return
+
+	# Check if this is the just-drawn card (would get the bonus if played now)
+	var just_drawn_card = game_state.get("just_drawn_card")
+	if card_data == just_drawn_card:
+		result.productivity *= 2

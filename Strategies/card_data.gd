@@ -7,6 +7,7 @@ var duration: int
 var productivity: int
 var effects: Array[EffectStrategy]
 var zen_sanity_bonus: int = 0  # Bonus from zen window (reduces sanity toll)
+var is_urgent: bool = false  # True when card has active urgency (just drawn with urgency effect)
 
 
 static func create_card_data_from_strategy(card_strategy: CardStrategy) -> CardData:

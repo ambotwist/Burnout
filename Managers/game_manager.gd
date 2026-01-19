@@ -30,6 +30,10 @@ var focus_end_time: float = -1.0
 var zen_start_time: float = -1.0
 var zen_end_time: float = -1.0
 
+# Urgency tracking
+var just_drawn_card: CardData = null  # The most recently drawn card (for urgency checks)
+var next_card_is_urgent: bool = false  # Flag to make the next drawn card urgent
+
 
 ### SETUP ###
 
@@ -180,6 +184,9 @@ func on_card_released(card: Card) -> void:
 		# (add_to_schedule frees the card node after animation)
 		var played_card_data: CardData = card.card_data
 
+		# Check if this is the urgent card being played immediately
+		var is_playing_urgent_card = played_card_data.is_urgent and played_card_data == just_drawn_card
+
 		# Trigger BEFORE_PLAY effects (await to handle async effects like planning)
 		await trigger_card_effects(card, GameEnums.EffectTrigger.BEFORE_PLAY)
 
@@ -188,6 +195,10 @@ func on_card_released(card: Card) -> void:
 
 		# Apply zen reduction if card is played within zen window
 		apply_zen_reduction(card)
+
+		# Apply urgency bonus if playing urgent card immediately (doubles productivity)
+		if is_playing_urgent_card:
+			apply_urgency_bonus(card)
 
 		var slot_position = schedule.get_slot_position(played_card_data.duration)
 		card_manager.add_to_schedule(card, slot_position)
@@ -223,6 +234,10 @@ func on_card_released(card: Card) -> void:
 		# Draw a new card (after half a second delay)
 		await get_tree().create_timer(0.5).timeout
 		card_manager.draw_card()
+
+		# Update just-drawn card tracking and check for urgency expiration
+		_update_just_drawn_card()
+		await _check_urgency_expiration()
 
 		# Notify that game state changed (previous_card updated)
 		Events.game_state_changed.emit(_build_game_state())
@@ -276,6 +291,76 @@ func play_card(card: Card) -> void:
 func update_productivity_label() -> void:
 	if productivity_label:
 		productivity_label.text = "PRODUCTIVITY: " + str(total_productivity)
+
+
+# Apply urgency bonus - doubles productivity when urgent card is played immediately
+func apply_urgency_bonus(card: Card) -> void:
+	if not card or not card.card_data:
+		return
+
+	var old_productivity = card.card_data.productivity
+	card.card_data.productivity *= 2
+	card.card_data.is_urgent = false
+	print("  -> URGENCY: Productivity doubled from ", old_productivity, " to ", card.card_data.productivity)
+
+
+# Update tracking for the most recently drawn card (for urgency mechanics)
+func _update_just_drawn_card() -> void:
+	just_drawn_card = null
+	if not card_manager.hand.cards.is_empty():
+		var last_card = card_manager.hand.cards.back()
+		if last_card is Card and last_card.card_data:
+			just_drawn_card = last_card.card_data
+
+			# Apply pending urgency if flagged
+			if next_card_is_urgent:
+				just_drawn_card.is_urgent = true
+				next_card_is_urgent = false
+				# Update visual to show urgency overlay
+				last_card.apply_card_data()
+				print("  -> Applied URGENCY to drawn card")
+
+
+## Set flag to make the next drawn card urgent (called by ApplyUrgencyToNextDrawnEffect)
+func set_next_card_urgent() -> void:
+	next_card_is_urgent = true
+
+
+# Check for urgent cards that missed their window and need to be auto-discarded
+func _check_urgency_expiration() -> void:
+	for card in card_manager.hand.cards:
+		if card is Card and card.card_data and card.card_data.is_urgent:
+			# If this urgent card is NOT the just-drawn card, it missed its window
+			if card.card_data != just_drawn_card:
+				await _auto_discard_urgent_card(card)
+				break  # Only discard one per turn
+
+
+# Auto-discard an urgent card that missed its play window
+func _auto_discard_urgent_card(card: Card) -> void:
+	print("  -> URGENCY EXPIRED: Auto-discarding card")
+	card.card_data.is_urgent = false
+	Events.urgent_card_expired.emit(card)
+
+	# Remove from hand
+	card_manager.hand.remove_card(card)
+	card_manager.update_cards_hand_positions()
+
+	# Reparent to CardManager for animation
+	var current_global_pos = card.global_position
+	card.reparent(card_manager)
+	card.global_position = current_global_pos
+
+	# Animate to discard pile
+	var tween = get_tree().create_tween()
+	tween.parallel().tween_property(card, "global_position", discard_pile.global_position, 0.3)
+	tween.parallel().tween_property(card, "scale", Vector2(discard_pile.cards_scale, discard_pile.cards_scale), 0.3)
+	tween.parallel().tween_property(card, "modulate:a", 0.0, 0.3)
+	await tween.finished
+
+	# Add to discard pile and free the node
+	discard_pile.add_card(card.card_data)
+	card.queue_free()
 
 
 # Apply sanity toll from a played card
@@ -422,5 +507,6 @@ func _build_game_state() -> Dictionary:
 		"zen_start_time": zen_start_time,
 		"zen_end_time": zen_end_time,
 		"current_sanity": current_sanity,
-		"max_sanity": max_sanity
+		"max_sanity": max_sanity,
+		"just_drawn_card": just_drawn_card
 	}

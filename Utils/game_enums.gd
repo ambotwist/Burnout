@@ -6,7 +6,8 @@ enum DeckType {
 	RANDOM = -2,   # For targeting: pick random deck
 	NEUTRAL = 0,
 	ADMIN = 1,
-	TECH = 2
+	TECH = 2,
+	STRAIN = 3
 }
 
 # Specific card IDs (based on Resources/Cards)
