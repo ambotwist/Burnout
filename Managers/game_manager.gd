@@ -5,6 +5,7 @@ extends Node
 @export var card_manager: CardManager
 @export var schedule: Control
 @export var productivity_label: RichTextLabel
+@export var day_label: RichTextLabel
 @export var discard_pile: Pile
 @export var floating_text_scene: PackedScene
 @export var floating_text_spawn_point: Marker2D
@@ -83,6 +84,9 @@ func initialize_game() -> void:
 	# Wait for half a second to ensure all cards are in hand
 	await get_tree().create_timer(0.5).timeout
 	InputManager.interactions_enabled = true # Enable interactions again
+
+	# Initialize UI labels
+	update_day_label()
 
 	# Initialize card displays after initial draw
 	Events.game_state_changed.emit(_build_game_state())
@@ -304,6 +308,11 @@ func play_card(card: Card) -> void:
 func update_productivity_label() -> void:
 	if productivity_label:
 		productivity_label.text = "PRODUCTIVITY: " + str(total_productivity)
+
+
+func update_day_label() -> void:
+	if day_label:
+		day_label.text = "DAY " + str(current_day)
 
 
 # Apply urgency bonus - doubles productivity when urgent card is played immediately
@@ -534,6 +543,7 @@ func start_new_day() -> void:
 	archived_cards.clear()
 	total_productivity = 0
 	update_productivity_label()
+	update_day_label()
 	just_drawn_card = null
 	next_card_is_urgent = false
 

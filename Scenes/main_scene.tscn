@@ -19,11 +19,12 @@
 
 [node name="MainScene" type="Node2D"]
 
-[node name="GameManager" type="Node" parent="." node_paths=PackedStringArray("card_manager", "schedule", "productivity_label", "discard_pile", "floating_text_spawn_point")]
+[node name="GameManager" type="Node" parent="." node_paths=PackedStringArray("card_manager", "schedule", "productivity_label", "day_label", "discard_pile", "floating_text_spawn_point")]
 script = ExtResource("1_jv6wh")
 card_manager = NodePath("../CardManager")
 schedule = NodePath("../Control/Schedule")
 productivity_label = NodePath("../Control/ProductivityLabel")
+day_label = NodePath("../Control/DayLabel")
 discard_pile = NodePath("../CardManager/DiscardPile")
 floating_text_scene = ExtResource("2_drdnd")
 floating_text_spawn_point = NodePath("../Control/Marker2D")
@@ -43,6 +44,18 @@ offset_right = 2880.0
 offset_bottom = 1620.0
 mouse_filter = 2
 metadata/_edit_lock_ = true
+
+[node name="DayLabel" type="RichTextLabel" parent="Control"]
+layout_mode = 0
+offset_left = 1547.0
+offset_top = 117.0
+offset_right = 1983.0
+offset_bottom = 177.0
+theme_override_fonts/normal_font = ExtResource("3_76v2p")
+theme_override_font_sizes/normal_font_size = 56
+text = "DAY 1"
+fit_content = true
+vertical_alignment = 1
 
 [node name="ProductivityLabel" type="RichTextLabel" parent="Control"]
 layout_mode = 0
