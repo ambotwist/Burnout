@@ -6,6 +6,7 @@ extends Node
 @export var schedule: Control
 @export var productivity_label: RichTextLabel
 @export var day_label: RichTextLabel
+@export var week_label: RichTextLabel
 @export var discard_pile: Pile
 @export var floating_text_scene: PackedScene
 @export var floating_text_spawn_point: Marker2D
@@ -36,7 +37,9 @@ var just_drawn_card: CardData = null  # The most recently drawn card (for urgenc
 var next_card_is_urgent: bool = false  # Flag to make the next drawn card urgent
 
 # Day progression tracking
-var current_day: int = 1
+var current_day: int = 1  # Day within the current week (1-5)
+var current_week: int = 1
+const DAYS_PER_WEEK: int = 5
 
 
 ### SETUP ###
@@ -87,6 +90,7 @@ func initialize_game() -> void:
 
 	# Initialize UI labels
 	update_day_label()
+	update_week_label()
 
 	# Initialize card displays after initial draw
 	Events.game_state_changed.emit(_build_game_state())
@@ -315,6 +319,11 @@ func update_day_label() -> void:
 		day_label.text = "DAY " + str(current_day)
 
 
+func update_week_label() -> void:
+	if week_label:
+		week_label.text = "WEEK " + str(current_week)
+
+
 # Apply urgency bonus - doubles productivity when urgent card is played immediately
 func apply_urgency_bonus(card: Card) -> void:
 	if not card or not card.card_data:
@@ -528,7 +537,13 @@ func restart_game() -> void:
 
 ## Start a new day - reset sanity, reshuffle deck, increment day counter
 func start_new_day() -> void:
+	# Progress day/week counters
 	current_day += 1
+	if current_day > DAYS_PER_WEEK:
+		current_day = 1
+		current_week += 1
+		# TODO: Week completed - add rewards/new mechanics here
+
 	current_sanity = STARTING_SANITY
 
 	# Reset time windows
@@ -544,6 +559,7 @@ func start_new_day() -> void:
 	total_productivity = 0
 	update_productivity_label()
 	update_day_label()
+	update_week_label()
 	just_drawn_card = null
 	next_card_is_urgent = false
 
@@ -627,5 +643,6 @@ func _build_game_state() -> Dictionary:
 		"current_sanity": current_sanity,
 		"max_sanity": max_sanity,
 		"just_drawn_card": just_drawn_card,
-		"current_day": current_day
+		"current_day": current_day,
+		"current_week": current_week
 	}
