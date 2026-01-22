@@ -183,3 +183,20 @@ func get_card_color(card_data: CardData) -> String:
 			return "red"
 		_:
 			return "yellow"
+
+
+## Reset the schedule for a new day
+func reset() -> void:
+	current_time = start_of_day
+	time_left = SCHEDULE_SIZE
+	focus_start_time = -1.0
+	focus_end_time = -1.0
+	zen_start_time = -1.0
+	zen_end_time = -1.0
+
+	# Remove time slot visuals (keep hour labels which are RichTextLabels)
+	for child in get_children():
+		if child is not RichTextLabel:
+			child.queue_free()
+
+	queue_redraw()

@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://8v7wo0wgcmti"]
+[gd_scene load_steps=17 format=3 uid="uid://8v7wo0wgcmti"]
 
 [ext_resource type="PackedScene" uid="uid://c1n1saudmbrqw" path="res://Managers/card_manager.tscn" id="1_6l7je"]
 [ext_resource type="Script" uid="uid://be3cp3bdvnga7" path="res://Managers/game_manager.gd" id="1_jv6wh"]
@@ -14,6 +14,8 @@
 [ext_resource type="Script" uid="uid://e0h2mgdmgdpx" path="res://Objects/Piles/discard_pile.gd" id="5_maf8m"]
 [ext_resource type="PackedScene" path="res://Objects/UI/sanity_bar.tscn" id="6_sanity"]
 [ext_resource type="PackedScene" path="res://Objects/UI/burnout_screen.tscn" id="7_burnout"]
+[ext_resource type="PackedScene" path="res://Objects/UI/day_complete_screen.tscn" id="8_day_complete"]
+[ext_resource type="PackedScene" path="res://Objects/UI/day_failed_screen.tscn" id="9_day_failed"]
 
 [node name="MainScene" type="Node2D"]
 
@@ -154,6 +156,10 @@ script = ExtResource("5_maf8m")
 cards_scale = 0.4
 
 [node name="BurnoutScreen" parent="." instance=ExtResource("7_burnout")]
+
+[node name="DayCompleteScreen" parent="." instance=ExtResource("8_day_complete")]
+
+[node name="DayFailedScreen" parent="." instance=ExtResource("9_day_failed")]
 
 [connection signal="pressed" from="Control/DeckEditorButton" to="GameManager" method="_on_deck_editor_button_pressed"]
 [connection signal="pressed" from="Control/RestartButton" to="GameManager" method="restart_game"]

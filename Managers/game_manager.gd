@@ -34,6 +34,9 @@ var zen_end_time: float = -1.0
 var just_drawn_card: CardData = null  # The most recently drawn card (for urgency checks)
 var next_card_is_urgent: bool = false  # Flag to make the next drawn card urgent
 
+# Day progression tracking
+var current_day: int = 1
+
 
 ### SETUP ###
 
@@ -222,6 +225,11 @@ func on_card_released(card: Card) -> void:
 		# Apply sanity toll
 		apply_sanity_toll(played_card_data)
 
+		# Check for day completion (win condition)
+		if schedule.time_left <= 0:
+			Events.day_completed.emit(current_day, total_productivity)
+			return  # Day is done, skip drawing new card
+
 		# Spawn floating text showing productivity gained
 		if floating_text_scene and floating_text_spawn_point:
 			var floating_text = floating_text_scene.instantiate()
@@ -238,6 +246,11 @@ func on_card_released(card: Card) -> void:
 		# Update just-drawn card tracking and check for urgency expiration
 		_update_just_drawn_card()
 		await _check_urgency_expiration()
+
+		# Check if player is stuck (cannot complete day)
+		if not can_complete_day():
+			Events.day_failed.emit("No playable cards remaining")
+			return
 
 		# Notify that game state changed (previous_card updated)
 		Events.game_state_changed.emit(_build_game_state())
@@ -380,6 +393,30 @@ func apply_sanity_toll(card_data: CardData) -> void:
 		Events.burnout_triggered.emit()
 
 
+## Check if player can still complete the day
+## Returns true if at least one card can be played to fill remaining time
+func can_complete_day() -> bool:
+	# If schedule is full, day is completable (it's completed)
+	if schedule.time_left <= 0:
+		return true
+
+	# Check if any card in hand fits remaining time
+	for card in card_manager.hand.cards:
+		if card is Card and card.card_data:
+			if card.card_data.duration <= schedule.time_left:
+				return true  # At least one card can be played
+
+	# Check if there are cards to draw
+	var has_cards_to_draw = not card_manager.draw_pile.is_empty()
+
+	# If hand is not full and there are cards to draw, player might draw a playable card
+	if not card_manager.hand.is_full() and has_cards_to_draw:
+		return true  # Might draw a playable card
+
+	# No playable cards and no way to get more - day cannot be completed
+	return false
+
+
 # Build game context and trigger card effects
 # Async to support effects that queue commands requiring player interaction
 func trigger_card_effects(card: Card, trigger: GameEnums.EffectTrigger) -> void:
@@ -480,6 +517,77 @@ func restart_game() -> void:
 	get_tree().reload_current_scene()
 
 
+## Start a new day - reset sanity, reshuffle deck, increment day counter
+func start_new_day() -> void:
+	current_day += 1
+	current_sanity = STARTING_SANITY
+
+	# Reset time windows
+	focus_start_time = -1.0
+	focus_end_time = -1.0
+	zen_start_time = -1.0
+	zen_end_time = -1.0
+
+	# Reset game state
+	scheduled_cards.clear()
+	previous_card = null
+	archived_cards.clear()
+	total_productivity = 0
+	update_productivity_label()
+	just_drawn_card = null
+	next_card_is_urgent = false
+
+	# Reset schedule
+	schedule.reset()
+
+	# Collect cards and reshuffle
+	_collect_all_cards_to_draw_pile()
+	card_manager.draw_pile.shuffle()
+
+	# Clear hand visuals
+	_clear_hand()
+
+	# Emit new day signal
+	Events.new_day_started.emit(current_day)
+
+	# Draw initial hand
+	InputManager.interactions_enabled = false
+	await get_tree().create_timer(0.5).timeout
+
+	for i in range(3):
+		if card_manager.draw_pile.is_empty():
+			break
+		card_manager.draw_card()
+		await get_tree().create_timer(0.1).timeout
+
+	await get_tree().create_timer(0.5).timeout
+	InputManager.interactions_enabled = true
+
+	Events.game_state_changed.emit(_build_game_state())
+
+
+## Collect all cards from hand and discard pile back to draw pile
+func _collect_all_cards_to_draw_pile() -> void:
+	# Move discard pile cards to draw pile
+	for card_data in discard_pile.cards.duplicate():
+		card_manager.draw_pile.add_card(card_data)
+	discard_pile.cards.clear()
+
+	# Move hand cards to draw pile (card_data only, visuals freed separately)
+	for card in card_manager.hand.cards:
+		if card is Card and card.card_data:
+			card_manager.draw_pile.add_card(card.card_data)
+
+
+## Clear all card visuals from hand
+func _clear_hand() -> void:
+	for card in card_manager.hand.cards.duplicate():
+		if is_instance_valid(card):
+			card.queue_free()
+	card_manager.hand.cards.clear()
+	card_manager.hand.card_positions.clear()
+
+
 ## Show confirmation dialog for returning to deck editor
 func _on_deck_editor_button_pressed() -> void:
 	$"../Control/ConfirmationDialog".popup_centered()
@@ -508,5 +616,6 @@ func _build_game_state() -> Dictionary:
 		"zen_end_time": zen_end_time,
 		"current_sanity": current_sanity,
 		"max_sanity": max_sanity,
-		"just_drawn_card": just_drawn_card
+		"just_drawn_card": just_drawn_card,
+		"current_day": current_day
 	}
