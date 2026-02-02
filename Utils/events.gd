@@ -23,3 +23,6 @@ signal day_failed(reason: String)
 
 ## Emits when a new day starts (after win screen)
 signal new_day_started(day_number: int)
+
+## Emits when a week ends (before starting new week)
+signal week_ended(week_number: int)

@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="MissionStrategy" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://Strategies/Encounters/mission_strategy.gd" id="1_mission"]
+[ext_resource type="Script" path="res://Strategies/Encounters/Goals/deck_type_goal.gd" id="2_goal"]
+[ext_resource type="Script" path="res://Strategies/Encounters/Rewards/card_sanity_buff_reward.gd" id="3_reward"]
+
+[sub_resource type="Resource" id="Resource_goal"]
+script = ExtResource("2_goal")
+target_amount = 20
+deck_type = 1
+
+[sub_resource type="Resource" id="Resource_reward"]
+script = ExtResource("3_reward")
+target_deck = 1
+base_sanity_bonus = 2
+bonus_per_extra = 1
+extra_cards_threshold = 5
+
+[resource]
+script = ExtResource("1_mission")
+mission_id = "UNDERSTAFFED_RECEPTION"
+title = "Understaffed Reception"
+offer_text = "Hey, I'm taking a few days off. Can you help us with some admin tasks?"
+mission_description = "Goal: Play 20 admin tasks this week.
+Reward: A random admin card gains +2 sanity (+1 more per 5 extra tasks)."
+accept_text = "Sure, I'll help"
+refuse_text = "Sorry, too busy"
+goal = SubResource("Resource_goal")
+reward = SubResource("Resource_reward")

@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://8v7wo0wgcmti"]
+[gd_scene load_steps=20 format=3 uid="uid://8v7wo0wgcmti"]
 
 [ext_resource type="PackedScene" uid="uid://c1n1saudmbrqw" path="res://Managers/card_manager.tscn" id="1_6l7je"]
 [ext_resource type="Script" uid="uid://be3cp3bdvnga7" path="res://Managers/game_manager.gd" id="1_jv6wh"]
@@ -16,10 +16,13 @@
 [ext_resource type="PackedScene" path="res://Objects/UI/burnout_screen.tscn" id="7_burnout"]
 [ext_resource type="PackedScene" path="res://Objects/UI/day_complete_screen.tscn" id="8_day_complete"]
 [ext_resource type="PackedScene" path="res://Objects/UI/day_failed_screen.tscn" id="9_day_failed"]
+[ext_resource type="PackedScene" path="res://Objects/UI/encounter_dialog_ui.tscn" id="10_encounter"]
+[ext_resource type="PackedScene" path="res://Objects/UI/mission_results_screen.tscn" id="11_mission_results"]
+[ext_resource type="PackedScene" path="res://Objects/UI/mission_tracker_ui.tscn" id="12_mission_tracker"]
 
 [node name="MainScene" type="Node2D"]
 
-[node name="GameManager" type="Node" parent="." node_paths=PackedStringArray("card_manager", "schedule", "productivity_label", "day_label", "week_label", "discard_pile", "floating_text_spawn_point")]
+[node name="GameManager" type="Node" parent="." node_paths=PackedStringArray("card_manager", "schedule", "productivity_label", "day_label", "week_label", "discard_pile", "floating_text_spawn_point", "mission_results_screen")]
 script = ExtResource("1_jv6wh")
 card_manager = NodePath("../CardManager")
 schedule = NodePath("../Control/Schedule")
@@ -29,6 +32,8 @@ week_label = NodePath("../Control/WeekLabel")
 discard_pile = NodePath("../CardManager/DiscardPile")
 floating_text_scene = ExtResource("2_drdnd")
 floating_text_spawn_point = NodePath("../Control/Marker2D")
+encounter_dialog_scene = ExtResource("10_encounter")
+mission_results_screen = NodePath("../MissionResultsScreen")
 
 [node name="DirtyLandOffice" type="Sprite2D" parent="."]
 modulate = Color(0.7750634, 0.7750634, 0.7750634, 1)
@@ -49,9 +54,9 @@ metadata/_edit_lock_ = true
 [node name="WeekLabel" type="RichTextLabel" parent="Control"]
 layout_mode = 0
 offset_left = 1547.0
-offset_top = 57.0
+offset_top = 102.0
 offset_right = 1983.0
-offset_bottom = 117.0
+offset_bottom = 165.0
 theme_override_fonts/normal_font = ExtResource("3_76v2p")
 theme_override_font_sizes/normal_font_size = 56
 text = "WEEK 1"
@@ -61,9 +66,9 @@ vertical_alignment = 1
 [node name="DayLabel" type="RichTextLabel" parent="Control"]
 layout_mode = 0
 offset_left = 1547.0
-offset_top = 117.0
+offset_top = 162.0
 offset_right = 1983.0
-offset_bottom = 177.0
+offset_bottom = 225.0
 theme_override_fonts/normal_font = ExtResource("3_76v2p")
 theme_override_font_sizes/normal_font_size = 56
 text = "DAY 1"
@@ -73,9 +78,9 @@ vertical_alignment = 1
 [node name="ProductivityLabel" type="RichTextLabel" parent="Control"]
 layout_mode = 0
 offset_left = 1547.0
-offset_top = 177.0
+offset_top = 222.0
 offset_right = 1983.0
-offset_bottom = 245.0
+offset_bottom = 290.0
 theme_override_fonts/normal_font = ExtResource("3_76v2p")
 theme_override_font_sizes/normal_font_size = 56
 text = "PRODUCTIVITY: 0"
@@ -163,6 +168,12 @@ offset_right = 233.0
 offset_bottom = 133.0
 scale = Vector2(2, 2)
 
+[node name="MissionTrackerUI" parent="Control" instance=ExtResource("12_mission_tracker")]
+offset_left = 2266.0
+offset_top = 82.0
+offset_right = 2702.0
+offset_bottom = 182.0
+
 [node name="CardManager" parent="." instance=ExtResource("1_6l7je")]
 metadata/_edit_lock_ = true
 
@@ -182,10 +193,16 @@ script = ExtResource("5_maf8m")
 cards_scale = 0.4
 
 [node name="BurnoutScreen" parent="." instance=ExtResource("7_burnout")]
+visible = false
 
 [node name="DayCompleteScreen" parent="." instance=ExtResource("8_day_complete")]
+visible = false
 
 [node name="DayFailedScreen" parent="." instance=ExtResource("9_day_failed")]
+visible = false
+
+[node name="MissionResultsScreen" parent="." instance=ExtResource("11_mission_results")]
+visible = false
 
 [connection signal="pressed" from="Control/DeckEditorButton" to="GameManager" method="_on_deck_editor_button_pressed"]
 [connection signal="pressed" from="Control/RestartButton" to="GameManager" method="restart_game"]

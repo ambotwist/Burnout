@@ -10,6 +10,8 @@ extends Node
 @export var discard_pile: Pile
 @export var floating_text_scene: PackedScene
 @export var floating_text_spawn_point: Marker2D
+@export var encounter_dialog_scene: PackedScene
+@export var mission_results_screen: CanvasLayer
 
 # Logic variables
 var card_id_counter: int = 0
@@ -40,6 +42,9 @@ var next_card_is_urgent: bool = false  # Flag to make the next drawn card urgent
 var current_day: int = 1  # Day within the current week (1-5)
 var current_week: int = 1
 const DAYS_PER_WEEK: int = 5
+
+# Encounter system
+var encounter_scheduler: EncounterScheduler = EncounterScheduler.new()
 
 
 ### SETUP ###
@@ -91,6 +96,12 @@ func initialize_game() -> void:
 	# Initialize UI labels
 	update_day_label()
 	update_week_label()
+
+	# Schedule encounters for the first day
+	encounter_scheduler.schedule_encounters_for_day()
+
+	# Reset mission state for new game
+	MissionManager.reset_for_new_game()
 
 	# Initialize card displays after initial draw
 	Events.game_state_changed.emit(_build_game_state())
@@ -233,10 +244,18 @@ func on_card_released(card: Card) -> void:
 		# Apply sanity toll
 		apply_sanity_toll(played_card_data)
 
+		# Track card play for active missions
+		MissionManager.track_card_played(played_card_data)
+
 		# Check for day completion (win condition)
 		if schedule.time_left <= 0:
 			Events.day_completed.emit(current_day, total_productivity)
 			return  # Day is done, skip drawing new card
+
+		# Check for random encounter between cards
+		var current_time = schedule.current_time if schedule else 0.0
+		if encounter_scheduler.check_for_encounter(current_time):
+			await _show_encounter()
 
 		# Spawn floating text showing productivity gained
 		if floating_text_scene and floating_text_spawn_point:
@@ -397,12 +416,13 @@ func _auto_discard_urgent_card(card: Card) -> void:
 # Apply sanity toll from a played card
 # Positive sanity_toll = restore sanity, Negative sanity_toll = drain sanity
 func apply_sanity_toll(card_data: CardData) -> void:
-	var sanity_toll = card_data.strategy.sanity_toll + card_data.zen_sanity_bonus
+	var mission_buff = MissionManager.get_card_sanity_buff(card_data)
+	var sanity_toll = card_data.strategy.sanity_toll + card_data.zen_sanity_bonus + mission_buff
 	var old_sanity = current_sanity
 	current_sanity = clamp(current_sanity + sanity_toll, 0, max_sanity)
 
-	if card_data.zen_sanity_bonus > 0:
-		print("Sanity: ", old_sanity, " -> ", current_sanity, " (base: ", card_data.strategy.sanity_toll, ", zen bonus: +", card_data.zen_sanity_bonus, ")")
+	if card_data.zen_sanity_bonus > 0 or mission_buff > 0:
+		print("Sanity: ", old_sanity, " -> ", current_sanity, " (base: ", card_data.strategy.sanity_toll, ", zen: +", card_data.zen_sanity_bonus, ", mission: +", mission_buff, ")")
 	else:
 		print("Sanity: ", old_sanity, " -> ", current_sanity, " (change: ", sanity_toll, ")")
 
@@ -540,9 +560,15 @@ func start_new_day() -> void:
 	# Progress day/week counters
 	current_day += 1
 	if current_day > DAYS_PER_WEEK:
+		# Process week-end missions before advancing
+		var results = MissionManager.process_week_end(self)
+		if not results.is_empty() and mission_results_screen:
+			mission_results_screen.show_results(results)
+			await mission_results_screen.results_dismissed
+
 		current_day = 1
 		current_week += 1
-		# TODO: Week completed - add rewards/new mechanics here
+		Events.week_ended.emit(current_week - 1)
 
 	current_sanity = STARTING_SANITY
 
@@ -589,7 +615,37 @@ func start_new_day() -> void:
 	await get_tree().create_timer(0.5).timeout
 	InputManager.interactions_enabled = true
 
+	# Schedule encounters for the new day
+	encounter_scheduler.schedule_encounters_for_day()
+
 	Events.game_state_changed.emit(_build_game_state())
+
+
+## Show a random encounter dialog (mission offer from a colleague)
+func _show_encounter() -> void:
+	if not encounter_dialog_scene:
+		return
+
+	var available_missions = MissionManager.get_available_missions()
+	if available_missions.is_empty():
+		return
+
+	var mission = available_missions.pick_random()
+	var colleague = MissionManager.get_colleague_for_mission(mission)
+	if not colleague:
+		return
+
+	var dialog = encounter_dialog_scene.instantiate()
+	get_tree().current_scene.add_child(dialog)
+	dialog.show_mission_offer(colleague, mission)
+
+	var accepted = await dialog.response_selected
+	if accepted:
+		MissionManager.accept_mission(mission, current_week)
+	else:
+		MissionManager.refuse_mission(mission)
+
+	dialog.queue_free()
 
 
 ## Collect all cards from hand and discard pile back to draw pile

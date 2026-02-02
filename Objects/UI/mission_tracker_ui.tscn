@@ -1,0 +1,32 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Objects/UI/mission_tracker_ui.gd" id="1_tracker"]
+[ext_resource type="FontFile" uid="uid://cmddn8fk3noym" path="res://Assets/Tiny5/Tiny5-Regular.ttf" id="2_font"]
+
+[node name="MissionTrackerUI" type="Control"]
+anchors_preset = 0
+offset_left = 1547.0
+offset_top = 282.0
+offset_right = 1983.0
+offset_bottom = 382.0
+script = ExtResource("1_tracker")
+
+[node name="MissionLabel" type="RichTextLabel" parent="."]
+layout_mode = 0
+offset_right = 436.0
+offset_bottom = 50.0
+theme_override_fonts/normal_font = ExtResource("2_font")
+theme_override_font_sizes/normal_font_size = 32
+theme_override_colors/default_color = Color(1, 0.85, 0.4, 1)
+text = "MISSION"
+fit_content = true
+
+[node name="ProgressLabel" type="RichTextLabel" parent="."]
+layout_mode = 0
+offset_top = 45.0
+offset_right = 436.0
+offset_bottom = 95.0
+theme_override_fonts/normal_font = ExtResource("2_font")
+theme_override_font_sizes/normal_font_size = 32
+text = "0/20"
+fit_content = true
