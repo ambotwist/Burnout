@@ -753,8 +753,12 @@ func _show_card_removal_selection() -> void:
 	selection_ui.queue_free()
 
 
-## Collect all cards from hand and discard pile back to draw pile
+## Collect all cards from hand, discard pile, and schedule back to draw pile
 func _collect_all_cards_to_draw_pile() -> void:
+	# Move scheduled cards back to draw pile
+	for card_data in scheduled_cards:
+		card_manager.draw_pile.add_card(card_data)
+
 	# Move discard pile cards to draw pile
 	for card_data in discard_pile.cards.duplicate():
 		card_manager.draw_pile.add_card(card_data)
@@ -764,6 +768,14 @@ func _collect_all_cards_to_draw_pile() -> void:
 	for card in card_manager.hand.cards:
 		if card is Card and card.card_data:
 			card_manager.draw_pile.add_card(card.card_data)
+
+	# Reset all card data to base strategy values for the new day
+	for card_data in card_manager.draw_pile.cards:
+		card_data.productivity = card_data.strategy.productivity
+		card_data.duration = card_data.strategy.duration
+		card_data.zen_sanity_bonus = 0
+		card_data.is_urgent = false
+		card_data.is_voided = false
 
 
 ## Clear all card visuals from hand
