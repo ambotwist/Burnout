@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="MissionStrategy" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://Strategies/Encounters/mission_strategy.gd" id="1_mission"]
+[ext_resource type="Script" path="res://Strategies/Encounters/Goals/card_id_goal.gd" id="2_goal"]
+[ext_resource type="Script" path="res://Strategies/Encounters/Rewards/card_removal_and_sanity_reward.gd" id="3_reward"]
+[ext_resource type="Script" uid="uid://5ef5ggycgd2n" path="res://Strategies/card_strategy.gd" id="4_card_strategy"]
+[ext_resource type="Resource" path="res://Resources/Cards/Mission/accounting_update_card.tres" id="5_accounting_card"]
+
+[sub_resource type="Resource" id="Resource_goal"]
+script = ExtResource("2_goal")
+target_amount = 7
+target_card_id = "ACCOUNTING_UPDATE"
+
+[sub_resource type="Resource" id="Resource_reward"]
+script = ExtResource("3_reward")
+sanity_gain = 5
+cards_to_remove = 1
+
+[resource]
+script = ExtResource("1_mission")
+mission_id = "KEEP_THE_BOOKS_STRAIGHT"
+title = "Keep the Books Straight"
+offer_text = "Hey... I'm drowning in updates. If I slip, it's on both of us. Can you help me keep things clean this week?"
+mission_description = "Goal: Play 'Accounting Update' 7 times this week.
+Reward: Remove 1 card from your deck + Gain 5 Sanity.
+2 temporary Accounting Update cards will be added to your deck."
+accept_text = "Yeah, I'll help."
+refuse_text = "I can't take that on."
+goal = SubResource("Resource_goal")
+reward = SubResource("Resource_reward")
+on_accept_cards = Array[ExtResource("4_card_strategy")]([ExtResource("5_accounting_card")])
+on_accept_card_count = 2

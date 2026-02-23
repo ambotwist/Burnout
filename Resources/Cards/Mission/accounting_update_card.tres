@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="CardStrategy" load_steps=5 format=3]
+
+[ext_resource type="Script" uid="uid://5ef5ggycgd2n" path="res://Strategies/card_strategy.gd" id="1_card"]
+[ext_resource type="Script" uid="uid://c6hm0eda7f1ut" path="res://Strategies/effect_strategy.gd" id="2_effect"]
+[ext_resource type="Script" uid="uid://bu2dywnhjtkf1" path="res://Strategies/prerequisite_strategy.gd" id="3_prereq"]
+[ext_resource type="Script" uid="uid://duyv4yweerhy7" path="res://Prerequisites/schedule_fits_prerequisite.gd" id="4_schedule"]
+
+[sub_resource type="Resource" id="Resource_schedule_fits"]
+script = ExtResource("4_schedule")
+metadata/_custom_type_script = "uid://duyv4yweerhy7"
+
+[resource]
+script = ExtResource("1_card")
+card_id = "ACCOUNTING_UPDATE"
+deck = 1
+duration = 2
+productivity = 1
+sanity_toll = -1
+effects = Array[ExtResource("2_effect")]([])
+play_prerequisites = Array[ExtResource("3_prereq")]([SubResource("Resource_schedule_fits")])
+metadata/_custom_type_script = "uid://5ef5ggycgd2n"

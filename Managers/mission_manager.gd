@@ -15,6 +15,9 @@ var offered_this_week: Array[String] = []
 # Card sanity buffs from completed missions (card game_id -> buff value)
 var card_sanity_buffs: Dictionary = {}
 
+# Game IDs of temporary cards injected by missions (survives past active_missions.clear())
+var temporary_card_game_ids: Array[int] = []
+
 # All loaded colleagues
 var all_colleagues: Array[ColleagueStrategy] = []
 
@@ -83,11 +86,16 @@ func get_colleague_for_mission(mission: MissionStrategy) -> ColleagueStrategy:
 	return null
 
 
-## Accept a mission
-func accept_mission(mission: MissionStrategy, current_week: int) -> void:
+## Accept a mission. Pass game_manager to enable on-accept card injection.
+func accept_mission(mission: MissionStrategy, current_week: int, game_manager = null) -> void:
 	var mission_data = MissionData.create_from_strategy(mission, current_week)
 	active_missions.append(mission_data)
 	offered_this_week.append(mission.mission_id)
+
+	# Inject temporary cards into draw pile if mission specifies them
+	if game_manager and not mission.on_accept_cards.is_empty() and mission.on_accept_card_count > 0:
+		_inject_temporary_cards(mission, game_manager)
+
 	mission_accepted.emit(mission_data)
 	print("MissionManager: Accepted mission '", mission.mission_id, "'")
 
@@ -136,9 +144,42 @@ func get_card_sanity_buff(card_data: CardData) -> int:
 	return card_sanity_buffs.get(card_data.game_id, 0)
 
 
+## Inject temporary cards into the draw pile when a mission is accepted
+func _inject_temporary_cards(mission: MissionStrategy, game_manager) -> void:
+	for i in range(mission.on_accept_card_count):
+		# Cycle through on_accept_cards templates
+		var template = mission.on_accept_cards[i % mission.on_accept_cards.size()]
+		var card_data = CardData.create_card_data_from_strategy(template)
+		card_data.game_id = game_manager.card_id_counter
+		game_manager.card_id_counter += 1
+		game_manager.card_manager.draw_pile.add_card(card_data)
+		temporary_card_game_ids.append(card_data.game_id)
+		print("MissionManager: Injected temporary card '", template.card_id, "' (game_id=", card_data.game_id, ")")
+
+	game_manager.card_manager.draw_pile.shuffle()
+
+
+## Remove all temporary mission cards from the draw pile (call after _collect_all_cards_to_draw_pile)
+func cleanup_temporary_cards(game_manager) -> void:
+	if temporary_card_game_ids.is_empty():
+		return
+
+	var removed_count = 0
+	for game_id in temporary_card_game_ids:
+		for card_data in game_manager.card_manager.draw_pile.cards.duplicate():
+			if card_data.game_id == game_id:
+				game_manager.card_manager.draw_pile.cards.erase(card_data)
+				removed_count += 1
+				break
+
+	print("MissionManager: Cleaned up ", removed_count, " temporary card(s)")
+	temporary_card_game_ids.clear()
+
+
 ## Reset all state for a new game
 func reset_for_new_game() -> void:
 	active_missions.clear()
 	refused_mission_ids.clear()
 	offered_this_week.clear()
 	card_sanity_buffs.clear()
+	temporary_card_game_ids.clear()

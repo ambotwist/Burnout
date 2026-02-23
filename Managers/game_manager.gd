@@ -43,6 +43,9 @@ var current_day: int = 1  # Day within the current week (1-5)
 var current_week: int = 1
 const DAYS_PER_WEEK: int = 5
 
+# Pending card removal rewards (from missions)
+var pending_card_removals: int = 0
+
 # Encounter system
 var encounter_scheduler: EncounterScheduler = EncounterScheduler.new()
 
@@ -633,6 +636,15 @@ func start_new_day() -> void:
 
 	# Collect cards and reshuffle
 	_collect_all_cards_to_draw_pile()
+
+	# Clean up temporary mission cards (now all in draw pile)
+	MissionManager.cleanup_temporary_cards(self)
+
+	# Handle pending card removal rewards
+	if pending_card_removals > 0:
+		await _show_card_removal_selection()
+		pending_card_removals = 0
+
 	card_manager.draw_pile.shuffle()
 
 	# Clear hand visuals
@@ -680,7 +692,7 @@ func _show_encounter() -> void:
 
 	var accepted = await dialog.response_selected
 	if accepted:
-		MissionManager.accept_mission(mission, current_week)
+		MissionManager.accept_mission(mission, current_week, self)
 	else:
 		MissionManager.refuse_mission(mission)
 
@@ -702,6 +714,43 @@ func _show_boss_check(result: Dictionary) -> void:
 
 	await overlay.check_dismissed
 	overlay.queue_free()
+
+
+## Show card selection UI for the player to choose a card to remove from their deck
+func _show_card_removal_selection() -> void:
+	var selection_scene = load("res://Objects/UI/card_selection_ui.tscn")
+	var selection_ui: CardSelectionUI = selection_scene.instantiate()
+	get_tree().current_scene.add_child(selection_ui)
+
+	# Create Card visuals for all draw pile cards
+	var card_visuals: Array[Card] = []
+	for card_data in card_manager.draw_pile.cards:
+		var card = card_manager.create_card(card_data, 1.0)
+		card_manager.add_child(card)
+		card_visuals.append(card)
+
+	# Adjust spacing for larger card counts to fit viewport
+	var card_count = card_visuals.size()
+	if card_count > 8:
+		selection_ui.card_spacing = max(100.0, 1600.0 / card_count)
+
+	selection_ui.setup(card_visuals, pending_card_removals)
+
+	# Await player selection
+	var result = await selection_ui.selection_completed
+	var selected_cards: Array = result[0]
+
+	# Remove selected cards' CardData from the draw pile
+	for card in selected_cards:
+		if card is Card and card.card_data:
+			card_manager.draw_pile.cards.erase(card.card_data)
+			print("Card removed from deck: ", card.card_data.strategy.card_id)
+
+	# Free all card visuals and selection UI
+	for card in card_visuals:
+		if is_instance_valid(card):
+			card.queue_free()
+	selection_ui.queue_free()
 
 
 ## Collect all cards from hand and discard pile back to draw pile

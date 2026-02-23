@@ -9,3 +9,5 @@ extends Resource
 @export var refuse_text: String = "Refuse"
 @export var goal: MissionGoalStrategy
 @export var reward: MissionRewardStrategy
+@export var on_accept_cards: Array[CardStrategy] = []
+@export var on_accept_card_count: int = 0

@@ -352,17 +352,90 @@ Extends `RefCounted` (not Node) because it needs no scene tree access and is ins
 - **Failed day cards still count** — cards played before burnout count toward mission progress
 - **Circular dependency workaround**: MissionStrategy↔MissionGoalStrategy↔MissionData form a cycle. Solved by using untyped parameters (`mission_data` instead of `mission_data: MissionData`) in goal/reward methods
 
+### Mission Cookbook
+
+#### Simple Mission (Goal + Reward Only)
+
+Example: "Understaffed Reception" — play 20 admin cards, get a sanity buff.
+
+1. Create goal `.tres` using an existing goal type (e.g., `DeckTypeGoal` with `deck_type=ADMIN`, `target_amount=20`)
+2. Create reward `.tres` using an existing reward type (e.g., `CardSanityBuffReward`)
+3. Create `MissionStrategy.tres` in `Resources/Missions/` referencing the goal and reward
+4. Add the mission to a colleague's `missions` array in their `.tres` file
+5. No code changes needed — MissionManager auto-loads colleagues from `Resources/Colleagues/`
+
+#### Available Goal Types
+
+- **DeckTypeGoal** (`Goals/deck_type_goal.gd`): Tracks cards played by `GameEnums.DeckType`. Uses `mission_data.deck_cards_played[deck_type]`
+- **CardIdGoal** (`Goals/card_id_goal.gd`): Tracks plays of a specific card by `card_id` string. Uses `mission_data.card_id_plays[target_card_id]`
+
+To add a new goal type: extend `MissionGoalStrategy`, override `get_progress(mission_data) -> int`. Place in `Strategies/Encounters/Goals/`
+
+#### Available Reward Types
+
+- **CardSanityBuffReward** (`Rewards/card_sanity_buff_reward.gd`): Picks random card of target deck, applies permanent sanity buff stored in `MissionManager.card_sanity_buffs`
+- **CardRemovalAndSanityReward** (`Rewards/card_removal_and_sanity_reward.gd`): Grants immediate sanity + flags async card removal UI via `game_manager.pending_card_removals`
+
+To add a new reward type: extend `MissionRewardStrategy`, override `apply_reward(mission_data, game_manager) -> String` and `get_reward_description(mission_data) -> String`. Place in `Strategies/Encounters/Rewards/`
+
+#### MissionData Tracking
+
+`MissionData.track_card_played()` automatically tracks every card play in two dictionaries:
+- `deck_cards_played: Dictionary` — `DeckType -> int` (used by DeckTypeGoal)
+- `card_id_plays: Dictionary` — `String -> int` (used by CardIdGoal)
+
+Both are updated on every card play via `MissionManager.track_card_played()`.
+
+#### Mission with On-Accept Deck Injection
+
+For missions that add temporary cards when accepted (e.g., "Keep the Books Straight"):
+
+**MissionStrategy properties**:
+```gdscript
+@export var on_accept_cards: Array[CardStrategy] = []  # Card templates to inject
+@export var on_accept_card_count: int = 0              # How many copies to add
+```
+
+**Temporary card placement**: Put mission-specific CardStrategy `.tres` files in `Resources/Cards/Mission/`. This subdirectory is NOT scanned by `load_all_card_strategies()` (which only iterates the top-level `Resources/Cards/` directory), so mission cards won't appear in normal deck building or game initialization.
+
+**Lifecycle**:
+1. Player accepts mission → `MissionManager.accept_mission()` creates CardData instances from `on_accept_cards`, assigns `game_id`s, adds to draw pile, shuffles
+2. Game IDs stored in `MissionManager.temporary_card_game_ids` (manager-level, survives past `active_missions.clear()`)
+3. Week ends → `MissionManager.cleanup_temporary_cards()` removes them from the draw pile
+4. `reset_for_new_game()` clears `temporary_card_game_ids`
+
+#### Async Reward Pattern (Two-Phase)
+
+`apply_reward()` is synchronous and returns a String. For rewards requiring player interaction (e.g., card selection UI), use a two-phase approach:
+
+**Phase 1** — in `apply_reward()`: Apply immediate rewards (sanity, buffs), set a flag on `game_manager` (e.g., `pending_card_removals += 1`), return description text.
+
+**Phase 2** — in `GameManager.start_new_day()`: After mission results screen is dismissed, check the flag and show async UI (e.g., `CardSelectionUI` for card removal). This keeps the `MissionRewardStrategy` interface unchanged.
+
+#### Week-End Flow in `start_new_day()` (Order Matters)
+
+```
+1. process_week_end()          → Resolve missions, apply rewards, set flags
+2. _collect_all_cards_to_draw_pile()  → All cards consolidated in draw pile
+3. cleanup_temporary_cards()   → Remove mission temp cards (now all in one pile)
+4. Card removal UI (if flagged) → Player picks card to remove
+5. shuffle()                    → Shuffle remaining deck
+6. Draw initial hand            → Start new week
+```
+
+This ordering ensures: temp cards are cleaned up after collection (so we only search one pile), and the card removal UI shows only real cards (temps already gone).
+
 ---
 
 ## Quick Reference
 
 **Create new effect**: Extend `EffectStrategy`, implement `apply_effect(context)`, create `.tres`, add to card
 
-**Create new card**: Create `CardStrategy.tres`, add to `Resources/Cards/`, add ID to `GameEnums.CardID`
+**Create new card**: Create `CardStrategy.tres`, add to `Resources/Cards/`, add ID to `GameEnums.CardID`. For mission-only cards, use `Resources/Cards/Mission/` subdirectory instead (excluded from normal deck loading)
 
-**Create new colleague**: Create `ColleagueStrategy.tres` in `Resources/Colleagues/`, add missions, register in MissionManager
+**Create new colleague**: Create `ColleagueStrategy.tres` in `Resources/Colleagues/`, add missions (auto-loaded by MissionManager, no code needed)
 
-**Create new mission**: Create `MissionStrategy.tres` in `Resources/Missions/` with goal + reward, add to colleague's `missions` array
+**Create new mission**: Create `MissionStrategy.tres` in `Resources/Missions/` with goal + reward, add to colleague's `missions` array. See "Mission Cookbook" section for advanced patterns (deck injection, async rewards)
 
 **Add buff/debuff display**: EffectSimulator auto-simulates all CardModifierEffects targeting SELF
 
@@ -377,12 +450,13 @@ Extends `RefCounted` (not Node) because it needs no scene tree access and is ins
 - `Utils/`: events, game_enums (autoload), effect_simulator, game_context, game_command
 - `Strategies/`: card_strategy, card_data, effect_strategy, target_strategy, prerequisite_strategy
 - `Strategies/Encounters/`: colleague_strategy, mission_strategy, mission_data, mission_goal_strategy, mission_reward_strategy
-- `Strategies/Encounters/Goals/`: deck_type_goal
-- `Strategies/Encounters/Rewards/`: card_sanity_buff_reward
+- `Strategies/Encounters/Goals/`: deck_type_goal, card_id_goal
+- `Strategies/Encounters/Rewards/`: card_sanity_buff_reward, card_removal_and_sanity_reward
 - `Effects/`: card_modifier_effect, card_copy_effect, card_discard_effect, archive_effect, archive_bonus_effect, on_archive_boost_effect, focus_effect, zen_effect, planning_effect
 - `Commands/`: copy_card, create_card_visual, find_card_node, remove_card_from_pile, reparent_card, wait, animate_card, add_card_to_pile, archive_card_command
 - `Commands/` (Selection): draw_cards_to_selection, animate_cards_to_selection, wait_for_selection, return_cards_to_draw_pile, modify_selected_cards, add_selected_cards_to_pile, cleanup_selection_ui
 - `Managers/`: game_manager, mission_manager (autoload), encounter_scheduler
 - `Objects/UI/`: card_selection_ui, sanity_bar, burnout_screen, encounter_dialog_ui, mission_tracker_ui, mission_results_screen
 - `Resources/Colleagues/`: paula_ledger
-- `Resources/Missions/`: understaffed_reception
+- `Resources/Cards/Mission/`: accounting_update (mission-only cards, excluded from normal deck loading)
+- `Resources/Missions/`: understaffed_reception, keep_the_books_straight
