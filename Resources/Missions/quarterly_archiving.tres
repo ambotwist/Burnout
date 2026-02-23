@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="MissionStrategy" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://Strategies/Encounters/mission_strategy.gd" id="1_mission"]
+[ext_resource type="Script" path="res://Strategies/Encounters/Goals/tag_play_count_goal.gd" id="2_goal"]
+[ext_resource type="Script" path="res://Strategies/Encounters/Rewards/foil_summary_reward.gd" id="3_reward"]
+[ext_resource type="Script" path="res://Strategies/Encounters/Rewards/foil_chance_reward.gd" id="4_continuous"]
+[ext_resource type="Script" uid="uid://5ef5ggycgd2n" path="res://Strategies/card_strategy.gd" id="5_card_strategy"]
+[ext_resource type="Resource" uid="uid://dbxdpdwuf6ta1" path="res://Resources/Cards/classement_prioritaire_card.tres" id="6_classement"]
+[ext_resource type="Resource" uid="uid://cob6wgycd7jwx" path="res://Resources/Cards/duplicata_card.tres" id="7_duplicata"]
+
+[sub_resource type="Resource" id="Resource_goal"]
+script = ExtResource("2_goal")
+target_amount = 1
+required_tag = "ARCHIVE"
+
+[sub_resource type="Resource" id="Resource_reward"]
+script = ExtResource("3_reward")
+
+[sub_resource type="Resource" id="Resource_continuous"]
+script = ExtResource("4_continuous")
+required_tag = "ARCHIVE"
+foil_chance = 0.25
+
+[resource]
+script = ExtResource("1_mission")
+mission_id = "QUARTERLY_ARCHIVING"
+title = "Quarterly Archiving"
+offer_text = "Quarter-end is coming up and the archive backlog is a mess. If you can run some extra filing this week, I'll make sure the good copies get flagged for priority processing."
+mission_description = "Goal: Play as many ARCHIVE cards as you can this week.
+Reward: Each ARCHIVE card play has a 25% chance to become FOIL (doubled productivity). ARCHIVE cards take +15 min longer."
+accept_text = "Consider it done."
+refuse_text = "No time, sorry."
+goal = SubResource("Resource_goal")
+reward = SubResource("Resource_reward")
+on_accept_cards = Array[ExtResource("5_card_strategy")]([ExtResource("6_classement"), ExtResource("7_duplicata")])
+on_accept_card_count = 1
+on_accept_modifier_tag = "ARCHIVE"
+on_accept_duration_modifier = 1
+continuous_reward = SubResource("Resource_continuous")

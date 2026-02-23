@@ -18,6 +18,9 @@ var card_sanity_buffs: Dictionary = {}
 # Game IDs of temporary cards injected by missions (survives past active_missions.clear())
 var temporary_card_game_ids: Array[int] = []
 
+# Tag-based duration modifiers from accepted missions (tag String -> int modifier)
+var tag_duration_modifiers: Dictionary = {}
+
 # All loaded colleagues
 var all_colleagues: Array[ColleagueStrategy] = []
 
@@ -25,6 +28,7 @@ signal mission_accepted(mission_data: MissionData)
 signal mission_completed(mission_data: MissionData, reward_text: String)
 signal mission_failed(mission_data: MissionData)
 signal mission_progress_updated(mission_data: MissionData)
+signal continuous_reward_triggered(card_data: CardData, reward_text: String)
 
 
 func _ready() -> void:
@@ -51,10 +55,16 @@ func _load_colleagues() -> void:
 
 
 ## Track a card play for all active missions
-func track_card_played(card_data: CardData) -> void:
+func track_card_played(card_data: CardData, game_manager = null) -> void:
 	for mission_data in active_missions:
 		mission_data.track_card_played(card_data)
 		mission_progress_updated.emit(mission_data)
+
+		# Invoke continuous reward if present
+		if game_manager and mission_data.strategy.continuous_reward:
+			var reward_text = mission_data.strategy.continuous_reward.on_card_played(card_data, mission_data, game_manager)
+			if not reward_text.is_empty():
+				continuous_reward_triggered.emit(card_data, reward_text)
 
 
 ## Get available missions that can be offered this week
@@ -91,6 +101,10 @@ func accept_mission(mission: MissionStrategy, current_week: int, game_manager = 
 	var mission_data = MissionData.create_from_strategy(mission, current_week)
 	active_missions.append(mission_data)
 	offered_this_week.append(mission.mission_id)
+
+	# Apply tag-based duration modifier if specified
+	if not mission.on_accept_modifier_tag.is_empty() and mission.on_accept_duration_modifier != 0:
+		tag_duration_modifiers[mission.on_accept_modifier_tag] = mission.on_accept_duration_modifier
 
 	# Inject temporary cards into draw pile if mission specifies them
 	if game_manager and not mission.on_accept_cards.is_empty() and mission.on_accept_card_count > 0:
@@ -135,6 +149,7 @@ func process_week_end(game_manager) -> Array[Dictionary]:
 	# Clear weekly state
 	active_missions.clear()
 	offered_this_week.clear()
+	tag_duration_modifiers.clear()
 
 	return results
 
@@ -144,11 +159,24 @@ func get_card_sanity_buff(card_data: CardData) -> int:
 	return card_sanity_buffs.get(card_data.game_id, 0)
 
 
+## Get duration modifier for a card based on its tags (from accepted missions)
+func get_card_duration_modifier(card_data: CardData) -> int:
+	var total: int = 0
+	for tag in card_data.strategy.tags:
+		if tag_duration_modifiers.has(tag):
+			total += tag_duration_modifiers[tag]
+	return total
+
+
 ## Inject temporary cards into the draw pile when a mission is accepted
 func _inject_temporary_cards(mission: MissionStrategy, game_manager) -> void:
 	for i in range(mission.on_accept_card_count):
-		# Cycle through on_accept_cards templates
-		var template = mission.on_accept_cards[i % mission.on_accept_cards.size()]
+		# Pick randomly when count < templates, otherwise cycle
+		var template: CardStrategy
+		if mission.on_accept_card_count < mission.on_accept_cards.size():
+			template = mission.on_accept_cards.pick_random()
+		else:
+			template = mission.on_accept_cards[i % mission.on_accept_cards.size()]
 		var card_data = CardData.create_card_data_from_strategy(template)
 		card_data.game_id = game_manager.card_id_counter
 		game_manager.card_id_counter += 1
@@ -183,3 +211,4 @@ func reset_for_new_game() -> void:
 	offered_this_week.clear()
 	card_sanity_buffs.clear()
 	temporary_card_game_ids.clear()
+	tag_duration_modifiers.clear()

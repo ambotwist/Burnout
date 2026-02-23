@@ -29,6 +29,9 @@ static func simulate_card_play(card_data: CardData, game_state: Dictionary) -> D
 	# Simulate zen reduction (happens between BEFORE_PLAY and ON_PLAY)
 	_simulate_zen_reduction(card_data, context, result)
 
+	# Simulate mission duration modifier (e.g., +15 min penalty for tagged cards)
+	_simulate_mission_duration_modifier(card_data, result)
+
 	# Simulate urgency bonus (doubles productivity if urgent and just drawn)
 	_simulate_urgency_bonus(card_data, game_state, result)
 
@@ -144,6 +147,13 @@ static func _simulate_zen_reduction(_card_data: CardData, context: GameContext, 
 		# Only reduce sanity toll if it's negative (draining cards)
 		if result.sanity_toll < 0:
 			result.sanity_toll += 1  # Reduce drain by 1
+
+
+## Simulate mission-scoped duration modifier for tagged cards
+static func _simulate_mission_duration_modifier(card_data: CardData, result: Dictionary) -> void:
+	var modifier = MissionManager.get_card_duration_modifier(card_data)
+	if modifier != 0:
+		result.duration += modifier
 
 
 ## Simulate urgency bonus (doubles productivity if card is urgent and just drawn)

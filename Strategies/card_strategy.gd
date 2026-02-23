@@ -10,6 +10,11 @@ extends Resource
 @export var effects: Array[EffectStrategy]
 @export var play_prerequisites: Array[PrerequisiteStrategy]
 @export var image: Texture2D
+@export var tags: Array[String] = []
+
+
+func has_tag(tag: String) -> bool:
+	return tags.has(tag)
 
 
 # Get localized title

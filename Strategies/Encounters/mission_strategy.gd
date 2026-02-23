@@ -11,3 +11,6 @@ extends Resource
 @export var reward: MissionRewardStrategy
 @export var on_accept_cards: Array[CardStrategy] = []
 @export var on_accept_card_count: int = 0
+@export var on_accept_modifier_tag: String = ""
+@export var on_accept_duration_modifier: int = 0
+@export var continuous_reward: ContinuousRewardStrategy = null

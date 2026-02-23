@@ -1,13 +1,14 @@
-[gd_resource type="Resource" script_class="ColleagueStrategy" load_steps=5 format=3]
+[gd_resource type="Resource" script_class="ColleagueStrategy" load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://Strategies/Encounters/colleague_strategy.gd" id="1_colleague"]
 [ext_resource type="Resource" path="res://Resources/Missions/understaffed_reception.tres" id="2_mission"]
 [ext_resource type="Texture2D" path="res://Assets/Characters/boss_man.png" id="3_portrait"]
 [ext_resource type="Resource" path="res://Resources/Missions/keep_the_books_straight.tres" id="4_mission"]
+[ext_resource type="Resource" path="res://Resources/Missions/quarterly_archiving.tres" id="5_mission"]
 
 [resource]
 script = ExtResource("1_colleague")
 colleague_id = "PAULA_LEDGER"
 display_name = "Paula Ledger"
 portrait = ExtResource("3_portrait")
-missions = [ExtResource("2_mission"), ExtResource("4_mission")]
+missions = [ExtResource("2_mission"), ExtResource("4_mission"), ExtResource("5_mission")]

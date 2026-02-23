@@ -37,4 +37,5 @@ sanity_toll = -2
 effects = Array[ExtResource("1_jqnjo")]([SubResource("Resource_iadmb")])
 play_prerequisites = Array[ExtResource("2_vwphh")]([SubResource("Resource_kg6oy")])
 image = ExtResource("2_4ar06")
+tags = Array[String](["ARCHIVE"])
 metadata/_custom_type_script = "uid://5ef5ggycgd2n"

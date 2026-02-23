@@ -5,6 +5,7 @@ var strategy  # MissionStrategy (untyped to avoid circular dependency)
 var week_accepted: int
 var deck_cards_played: Dictionary = {}  # DeckType -> int count
 var card_id_plays: Dictionary = {}  # String -> int count (card_id tracking)
+var tag_plays: Dictionary = {}  # String -> int count (tag tracking)
 var status: MissionStatus = MissionStatus.ACTIVE
 
 enum MissionStatus {
@@ -20,6 +21,7 @@ static func create_from_strategy(mission, week: int) -> MissionData:
 	data.week_accepted = week
 	data.deck_cards_played = {}
 	data.card_id_plays = {}
+	data.tag_plays = {}
 	return data
 
 
@@ -33,3 +35,8 @@ func track_card_played(card_data: CardData) -> void:
 	if not card_id_plays.has(card_id):
 		card_id_plays[card_id] = 0
 	card_id_plays[card_id] += 1
+
+	for tag in card_data.strategy.tags:
+		if not tag_plays.has(tag):
+			tag_plays[tag] = 0
+		tag_plays[tag] += 1

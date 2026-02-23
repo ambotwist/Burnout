@@ -61,6 +61,7 @@ func _ready() -> void:
 		push_error("Card manager not set in game manager")
 	await get_tree().process_frame # Wait for other nodes to get added to the tree
 	card_manager.card_released.connect(on_card_released)
+	MissionManager.continuous_reward_triggered.connect(_on_continuous_reward_triggered)
 	initialize_game()
 
 
@@ -202,6 +203,17 @@ func apply_zen_reduction(card: Card) -> void:
 			print("  → ZEN: Sanity toll will be reduced from ", old_toll, " to ", old_toll + 1, " (saved 1 sanity)")
 	
 
+## Apply mission-scoped duration modifier to tagged cards (e.g., +15 min penalty for ARCHIVE cards)
+func apply_mission_duration_modifier(card: Card) -> void:
+	if not card or not card.card_data:
+		return
+	var modifier = MissionManager.get_card_duration_modifier(card.card_data)
+	if modifier != 0:
+		var old_duration = card.card_data.duration
+		card.card_data.duration += modifier
+		print("  → MISSION: Duration modified from ", old_duration, " to ", card.card_data.duration)
+
+
 func on_card_released(card: Card) -> void:
 	if card_is_over_schedule:
 		# Check if card can be played (play prerequisites)
@@ -227,6 +239,9 @@ func on_card_released(card: Card) -> void:
 
 		# Apply zen reduction if card is played within zen window
 		apply_zen_reduction(card)
+
+		# Apply mission duration modifier (e.g., +15 min penalty for tagged cards)
+		apply_mission_duration_modifier(card)
 
 		# Apply urgency bonus if playing urgent card immediately (doubles productivity)
 		if is_playing_urgent_card:
@@ -283,7 +298,7 @@ func on_card_released(card: Card) -> void:
 				Events.boss_check_resolved.emit(surveillance_result)
 
 		# Track card play for active missions (voided cards still count)
-		MissionManager.track_card_played(played_card_data)
+		MissionManager.track_card_played(played_card_data, self)
 
 		# Check for day completion (win condition)
 		if schedule.time_left <= 0:
@@ -776,6 +791,9 @@ func _collect_all_cards_to_draw_pile() -> void:
 		card_data.zen_sanity_bonus = 0
 		card_data.is_urgent = false
 		card_data.is_voided = false
+		# Re-apply foil bonus after reset (foil doubles base productivity permanently)
+		if card_data.is_foil:
+			card_data.productivity *= 2
 
 
 ## Clear all card visuals from hand
@@ -821,3 +839,11 @@ func _build_game_state() -> Dictionary:
 		"danger_level": surveillance_manager.get_danger_text(),
 		"weekly_infractions": surveillance_manager.weekly_infractions
 	}
+
+
+## Spawn floating text when a continuous reward triggers (e.g., FOIL)
+func _on_continuous_reward_triggered(_card_data: CardData, reward_text: String) -> void:
+	if floating_text_scene and floating_text_spawn_point:
+		var foil_text = floating_text_scene.instantiate()
+		get_tree().current_scene.add_child(foil_text)
+		foil_text.setup_custom(reward_text, floating_text_spawn_point.global_position + Vector2(0, -30), Color(1.0, 0.85, 0.4))

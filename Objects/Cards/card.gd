@@ -52,6 +52,9 @@ func apply_card_data() -> void:
 	duration_label.text = format_duration(card_data.duration)
 	sanity_toll_label.text = format_sanity_toll(card_data.strategy.sanity_toll)
 
+	# Update foil visual (gold tint)
+	_update_foil_visual()
+
 	# Update urgency visual overlay
 	_update_urgency_visual()
 
@@ -194,3 +197,14 @@ func _hide_urgency_overlay() -> void:
 	if _urgency_tween and _urgency_tween.is_running():
 		_urgency_tween.kill()
 		_urgency_tween = null
+
+
+## Update foil visual (gold tint on the card sprite)
+func _update_foil_visual() -> void:
+	if not front_sprite:
+		return
+
+	if card_data and card_data.is_foil:
+		front_sprite.modulate = Color(1.0, 0.85, 0.4)  # Gold tint
+	else:
+		front_sprite.modulate = Color.WHITE
