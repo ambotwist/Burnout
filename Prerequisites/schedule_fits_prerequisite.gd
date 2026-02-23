@@ -1,20 +1,13 @@
 class_name ScheduleFitsPrerequisite
 extends CardPrerequisiteStrategy
 
-## Checks if the card's duration fits in the remaining schedule time
-## This prevents players from placing cards that don't fit
+## Checks if there is any remaining schedule time.
+## Cards that overflow the schedule are allowed (overtime) but cost double sanity.
 
 func is_satisfied(context: GameContext) -> bool:
 	if not context.self_card or not context.schedule:
 		print("    → Missing context data (self_card or schedule)")
 		return false
 
-	# Check if card duration fits in remaining time
-	var card_duration = context.self_card.duration
-	var time_left = context.time_left
-
-	var fits = card_duration <= time_left
-	if not fits:
-		print("    → Card duration (", card_duration, ") > time left (", time_left, ")")
-
-	return fits
+	# Allow any card as long as there's at least one slot remaining
+	return context.time_left > 0

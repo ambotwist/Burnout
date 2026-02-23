@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Objects/UI/danger_level_ui.gd" id="1_script"]
+
+[node name="DangerLevelUI" type="RichTextLabel"]
+layout_mode = 2
+offset_right = 200.0
+offset_bottom = 40.0
+theme_override_font_sizes/normal_font_size = 28
+bbcode_enabled = true
+text = "[center]DANGER: [color=green]LOW[/color][/center]"
+fit_content = true
+script = ExtResource("1_script")

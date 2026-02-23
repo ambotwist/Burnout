@@ -22,6 +22,9 @@ var focus_end_time: float = -1.0
 var zen_start_time: float = -1.0
 var zen_end_time: float = -1.0
 
+# Last placed time slot (for boss surveillance grey-out)
+var last_time_slot: Node2D = null
+
 func _ready() -> void:
 	time_slot_scene = preload(TIME_SLOT_SCENE_PATH)
 	
@@ -136,9 +139,12 @@ func fill_slot(slot_color, slot_size):
 	var day_length = end_of_day - start_of_day
 	var grid_width = size.x / day_length
 
-	# Calculate time unit size (width between lines * slot_size)
+	# Clamp visual size to remaining time (overtime cards get truncated visually)
+	var visual_size = mini(slot_size, time_left)
+
+	# Calculate time unit size (width between lines * visual_size)
 	# Each slot is now 15 minutes, so grid_width / 4
-	var time_unit_size = (grid_width / 4) * slot_size
+	var time_unit_size = (grid_width / 4) * visual_size
 
 	# Calculate x position based on current_time
 	var time_offset = current_time - start_of_day
@@ -147,7 +153,7 @@ func fill_slot(slot_color, slot_size):
 
 	var time_slot = time_slot_scene.instantiate()
 	add_child(time_slot)
-	time_slot.setup(slot_color, slot_size)
+	time_slot.setup(slot_color, visual_size)
 
 	var time_slot_scale_width = time_unit_size / time_slot.slot_width
 	var time_slot_scale_height = grid_width/4 / time_slot.slot_height
@@ -156,7 +162,11 @@ func fill_slot(slot_color, slot_size):
 		x_position + time_slot_scale_width * time_slot.slot_width/2,
 		y_position + time_slot_scale_height * time_slot.slot_height/2)
 
+	# Track last placed slot for potential grey-out
+	last_time_slot = time_slot
+
 	# Update current_time and time_left (each slot is 0.25 hours = 15 minutes)
+	# time_left can go negative for overtime cards
 	current_time += slot_size * 0.25
 	time_left -= slot_size
 
@@ -166,8 +176,11 @@ func get_slot_position(slot_size) -> Vector2:
 	var day_length = end_of_day - start_of_day
 	var grid_width = size.x / day_length
 
+	# Clamp visual size to remaining time (overtime cards get truncated visually)
+	var visual_size = mini(slot_size, time_left)
+
 	# Each slot is now 15 minutes, so grid_width / 4
-	var time_unit_size = (grid_width / 4) * slot_size
+	var time_unit_size = (grid_width / 4) * visual_size
 	var time_offset = current_time - start_of_day
 	var x_position = time_offset * grid_width
 	var y_position = horizontal_divider_height + 40
@@ -185,6 +198,12 @@ func get_card_color(card_data: CardData) -> String:
 			return "yellow"
 
 
+## Grey out the last placed time slot (used when boss voids a card)
+func grey_out_last_slot() -> void:
+	if last_time_slot and is_instance_valid(last_time_slot):
+		last_time_slot.get_node("Sprite2D").modulate = Color(0.3, 0.3, 0.3, 0.5)
+
+
 ## Reset the schedule for a new day
 func reset() -> void:
 	current_time = start_of_day
@@ -193,6 +212,7 @@ func reset() -> void:
 	focus_end_time = -1.0
 	zen_start_time = -1.0
 	zen_end_time = -1.0
+	last_time_slot = null
 
 	# Remove time slot visuals (keep hour labels which are RichTextLabels)
 	for child in get_children():

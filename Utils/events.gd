@@ -26,3 +26,6 @@ signal new_day_started(day_number: int)
 
 ## Emits when a week ends (before starting new week)
 signal week_ended(week_number: int)
+
+## Emits when boss surveillance check resolves (caught or all clear)
+signal boss_check_resolved(result: Dictionary)

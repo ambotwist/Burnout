@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3 uid="uid://8v7wo0wgcmti"]
+[gd_scene load_steps=22 format=3 uid="uid://8v7wo0wgcmti"]
 
 [ext_resource type="PackedScene" uid="uid://c1n1saudmbrqw" path="res://Managers/card_manager.tscn" id="1_6l7je"]
 [ext_resource type="Script" uid="uid://be3cp3bdvnga7" path="res://Managers/game_manager.gd" id="1_jv6wh"]
@@ -16,9 +16,11 @@
 [ext_resource type="PackedScene" path="res://Objects/UI/burnout_screen.tscn" id="7_burnout"]
 [ext_resource type="PackedScene" path="res://Objects/UI/day_complete_screen.tscn" id="8_day_complete"]
 [ext_resource type="PackedScene" path="res://Objects/UI/day_failed_screen.tscn" id="9_day_failed"]
-[ext_resource type="PackedScene" path="res://Objects/UI/encounter_dialog_ui.tscn" id="10_encounter"]
+[ext_resource type="PackedScene" uid="uid://rnvosqulteg0" path="res://Objects/UI/encounter_dialog_ui.tscn" id="10_encounter"]
 [ext_resource type="PackedScene" path="res://Objects/UI/mission_results_screen.tscn" id="11_mission_results"]
 [ext_resource type="PackedScene" path="res://Objects/UI/mission_tracker_ui.tscn" id="12_mission_tracker"]
+[ext_resource type="PackedScene" path="res://Objects/UI/boss_check_overlay.tscn" id="13_boss_check"]
+[ext_resource type="PackedScene" path="res://Objects/UI/danger_level_ui.tscn" id="14_danger_level"]
 
 [node name="MainScene" type="Node2D"]
 
@@ -34,6 +36,7 @@ floating_text_scene = ExtResource("2_drdnd")
 floating_text_spawn_point = NodePath("../Control/Marker2D")
 encounter_dialog_scene = ExtResource("10_encounter")
 mission_results_screen = NodePath("../MissionResultsScreen")
+boss_check_overlay_scene = ExtResource("13_boss_check")
 
 [node name="DirtyLandOffice" type="Sprite2D" parent="."]
 modulate = Color(0.7750634, 0.7750634, 0.7750634, 1)
@@ -173,6 +176,13 @@ offset_left = 2266.0
 offset_top = 82.0
 offset_right = 2702.0
 offset_bottom = 182.0
+
+[node name="DangerLevelUI" parent="Control" instance=ExtResource("14_danger_level")]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 212.0
+offset_right = 452.0
+offset_bottom = 252.0
 
 [node name="CardManager" parent="." instance=ExtResource("1_6l7je")]
 metadata/_edit_lock_ = true

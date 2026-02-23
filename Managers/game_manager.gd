@@ -46,6 +46,10 @@ const DAYS_PER_WEEK: int = 5
 # Encounter system
 var encounter_scheduler: EncounterScheduler = EncounterScheduler.new()
 
+# Surveillance system
+var surveillance_manager: SurveillanceManager = SurveillanceManager.new()
+@export var boss_check_overlay_scene: PackedScene
+
 
 ### SETUP ###
 
@@ -102,6 +106,9 @@ func initialize_game() -> void:
 
 	# Reset mission state for new game
 	MissionManager.reset_for_new_game()
+
+	# Reset surveillance state for new game
+	surveillance_manager.reset_for_new_game()
 
 	# Initialize card displays after initial draw
 	Events.game_state_changed.emit(_build_game_state())
@@ -222,6 +229,9 @@ func on_card_released(card: Card) -> void:
 		if is_playing_urgent_card:
 			apply_urgency_bonus(card)
 
+		# Detect overtime (card overflows remaining schedule)
+		var is_overtime = played_card_data.duration > schedule.time_left
+
 		var slot_position = schedule.get_slot_position(played_card_data.duration)
 		card_manager.add_to_schedule(card, slot_position)
 
@@ -231,20 +241,45 @@ func on_card_released(card: Card) -> void:
 		# Update scheduled cards (but NOT previous_card yet)
 		scheduled_cards.append(played_card_data)
 
-		print("Card played: ", played_card_data.strategy.card_id)
+		if is_overtime:
+			print("Card played: ", played_card_data.strategy.card_id, " [OVERTIME]")
+		else:
+			print("Card played: ", played_card_data.strategy.card_id)
 
-		# Trigger ON_PLAY effects (await to handle async effects like planning)
-		# Note: card node may be freed after add_to_schedule, but played_card_data is still valid
-		await trigger_card_effects(card, GameEnums.EffectTrigger.ON_PLAY)
+		# Boss surveillance check (instant roll, no await)
+		var surveillance_result = surveillance_manager.check_card(played_card_data)
 
-		# Add card's final productivity to total
-		total_productivity += played_card_data.productivity
-		update_productivity_label()
+		if surveillance_result.voided:
+			# Show caught overlay first (card node not needed for voided path)
+			await _show_boss_check(surveillance_result)
+			Events.boss_check_resolved.emit(surveillance_result)
+			# Card is voided — skip productivity, ON_PLAY effects, and sanity toll
+			schedule.grey_out_last_slot()
+			played_card_data.is_voided = true
+		else:
+			# Normal card resolution — run effects BEFORE overlay to keep card node valid
+			# (add_to_schedule starts a tween that frees card; awaiting overlay would let it complete)
+			await trigger_card_effects(card, GameEnums.EffectTrigger.ON_PLAY)
 
-		# Apply sanity toll
-		apply_sanity_toll(played_card_data)
+			# Add card's final productivity to total
+			total_productivity += played_card_data.productivity
+			update_productivity_label()
 
-		# Track card play for active missions
+			# Apply sanity toll (doubled for overtime cards)
+			apply_sanity_toll(played_card_data, is_overtime)
+
+			# Show overtime floating text warning
+			if is_overtime and floating_text_scene and floating_text_spawn_point:
+				var overtime_text = floating_text_scene.instantiate()
+				get_tree().current_scene.add_child(overtime_text)
+				overtime_text.setup_custom("OVERTIME! x2 Sanity", floating_text_spawn_point.global_position + Vector2(0, 60), Color(1.0, 0.3, 0.3))
+
+			# Show "all clear" overlay after effects (card may be freed now, that's fine)
+			if surveillance_result.boss_checked:
+				await _show_boss_check(surveillance_result)
+				Events.boss_check_resolved.emit(surveillance_result)
+
+		# Track card play for active missions (voided cards still count)
 		MissionManager.track_card_played(played_card_data)
 
 		# Check for day completion (win condition)
@@ -257,11 +292,12 @@ func on_card_released(card: Card) -> void:
 		if encounter_scheduler.check_for_encounter(current_time):
 			await _show_encounter()
 
-		# Spawn floating text showing productivity gained
+		# Spawn floating text showing productivity gained (or "VOIDED" for voided cards)
 		if floating_text_scene and floating_text_spawn_point:
 			var floating_text = floating_text_scene.instantiate()
 			get_tree().current_scene.add_child(floating_text)
-			floating_text.setup(played_card_data.productivity, floating_text_spawn_point.global_position)
+			var display_value = 0 if played_card_data.is_voided else played_card_data.productivity
+			floating_text.setup(display_value, floating_text_spawn_point.global_position)
 
 		# NOW update previous_card after all effects have triggered
 		previous_card = played_card_data
@@ -415,9 +451,15 @@ func _auto_discard_urgent_card(card: Card) -> void:
 
 # Apply sanity toll from a played card
 # Positive sanity_toll = restore sanity, Negative sanity_toll = drain sanity
-func apply_sanity_toll(card_data: CardData) -> void:
+# Overtime cards pay double sanity toll
+func apply_sanity_toll(card_data: CardData, is_overtime: bool = false) -> void:
 	var mission_buff = MissionManager.get_card_sanity_buff(card_data)
 	var sanity_toll = card_data.strategy.sanity_toll + card_data.zen_sanity_bonus + mission_buff
+
+	if is_overtime:
+		sanity_toll *= 2
+		print("  → OVERTIME: Sanity toll doubled (", sanity_toll / 2, " → ", sanity_toll, ")")
+
 	var old_sanity = current_sanity
 	current_sanity = clamp(current_sanity + sanity_toll, 0, max_sanity)
 
@@ -432,26 +474,22 @@ func apply_sanity_toll(card_data: CardData) -> void:
 
 
 ## Check if player can still complete the day
-## Returns true if at least one card can be played to fill remaining time
+## Players can always play cards overtime, so this only fails if hand is empty and no draws left
 func can_complete_day() -> bool:
-	# If schedule is full, day is completable (it's completed)
+	# If schedule is full or overflowed, day is completed
 	if schedule.time_left <= 0:
 		return true
 
-	# Check if any card in hand fits remaining time
+	# Any card in hand can be played (overtime is allowed)
 	for card in card_manager.hand.cards:
 		if card is Card and card.card_data:
-			if card.card_data.duration <= schedule.time_left:
-				return true  # At least one card can be played
+			return true
 
 	# Check if there are cards to draw
-	var has_cards_to_draw = not card_manager.draw_pile.is_empty()
+	if not card_manager.draw_pile.is_empty():
+		return true
 
-	# If hand is not full and there are cards to draw, player might draw a playable card
-	if not card_manager.hand.is_full() and has_cards_to_draw:
-		return true  # Might draw a playable card
-
-	# No playable cards and no way to get more - day cannot be completed
+	# No cards in hand and no cards to draw
 	return false
 
 
@@ -568,6 +606,7 @@ func start_new_day() -> void:
 
 		current_day = 1
 		current_week += 1
+		surveillance_manager.reset_weekly_infractions()
 		Events.week_ended.emit(current_week - 1)
 
 	current_sanity = STARTING_SANITY
@@ -648,6 +687,23 @@ func _show_encounter() -> void:
 	dialog.queue_free()
 
 
+## Show boss surveillance check overlay
+func _show_boss_check(result: Dictionary) -> void:
+	if not boss_check_overlay_scene:
+		return
+
+	var overlay = boss_check_overlay_scene.instantiate()
+	get_tree().current_scene.add_child(overlay)
+
+	if result.is_slacking:
+		overlay.show_caught_check()
+	else:
+		overlay.show_working_check()
+
+	await overlay.check_dismissed
+	overlay.queue_free()
+
+
 ## Collect all cards from hand and discard pile back to draw pile
 func _collect_all_cards_to_draw_pile() -> void:
 	# Move discard pile cards to draw pile
@@ -700,5 +756,7 @@ func _build_game_state() -> Dictionary:
 		"max_sanity": max_sanity,
 		"just_drawn_card": just_drawn_card,
 		"current_day": current_day,
-		"current_week": current_week
+		"current_week": current_week,
+		"danger_level": surveillance_manager.get_danger_text(),
+		"weekly_infractions": surveillance_manager.weekly_infractions
 	}
